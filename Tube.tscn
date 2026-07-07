@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://bm0qpuchlry4l"]
+
+[ext_resource type="Script" uid="uid://dho8ttyd26iqf" path="res://tube.gd" id="1_fm3gm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fm3gm"]
+size = Vector2(64, 256)
+
+[node name="Tube" type="Area2D" unique_id=87349639]
+script = ExtResource("1_fm3gm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1858643113]
+shape = SubResource("RectangleShape2D_fm3gm")

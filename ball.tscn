@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://dsn8y3tmt77oq"]
+
+[ext_resource type="Texture2D" uid="uid://vs7joxxlxjo" path="res://icon.svg" id="1_x8fbi"]
+[ext_resource type="Script" uid="uid://cdstc8cy4lbp4" path="res://ball.gd" id="2_41u45"]
+
+[node name="Ball" type="Sprite2D" unique_id=1100414233]
+scale = Vector2(0.37499994, 0.375)
+texture = ExtResource("1_x8fbi")
+script = ExtResource("2_41u45")
