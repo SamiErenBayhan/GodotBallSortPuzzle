@@ -27,10 +27,15 @@ func _ready():
 
 func build_level(level_data: Array):
 	# Ekrana elinle milimetrik grid çiziyoruz:
-	var start_x = 350   # İlk tüpün soldan uzaklığı
-	var spacing_x = 180 # Yan yana tüplerin arası
-	var spacing_y = 300 # Üst satır ile alt satırın arası
-	var row_1_y = 150   # Üst satırın yüksekliği
+	var screen_size = get_viewport_rect().size
+	var screen_width = screen_size.x
+	var screen_height = screen_size.y
+	
+	var spacing_x = screen_width * 0.25 # Ekran genişliğinin %15'i kadar yan yana boşluk
+	var spacing_y = screen_height * 0.45 # Ekran yüksekliğinin %35'i kadar altlı üstlü boşluk
+	
+	var start_x = (screen_width - (2 * spacing_x)) / 2.0
+	var row_1_y = screen_height * 0.30 # Üst satır ekranın yukarısından %30 aşağıda dursun
 	
 	for i in range(level_data.size()):
 		var new_tube = TUBE_SCENE.instantiate()
