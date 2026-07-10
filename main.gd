@@ -100,8 +100,24 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 					selected_tube = null
 					return
 			
-			# Transfer başarılı: Hafıza kayıtlarını güncelle ve topu fiziksel olarak kaydır
 			from_tube.ball_stack.pop_back()
-			ball_to_move.global_position = to_tube.get_next_available_position()
-			to_tube.ball_stack.append(ball_to_move)
+			var tween = create_tween()
+			var target_pos = to_tube.get_next_available_position()
+			var transit_y = from_tube.global_position.y - 120
+			# AŞAMA A - YUKARI ÇIK: Araba önce park yerinden dikey olarak yukarı, koridora fırlar
+			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.15)\
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_OUT)
+			
+			# AŞAMA B - YATAYDA İLERLE: Araba havada süzülerek hedef tüpün tam kapağının üstüne gelir
+			tween.tween_property(ball_to_move, "global_position:x", target_pos.x, 0.25)\
+			.set_trans(Tween.TRANS_QUAD)
+			
+			# AŞAMA C - İÇERİ GİR: Tam ağzına hizalanınca, yukarıdan aşağıya doğru park yerine süzülür
+			tween.tween_property(ball_to_move, "global_position:y", target_pos.y, 0.20)\
+			.set_trans(Tween.TRANS_CUBIC)\
+			.set_ease(Tween.EASE_OUT)
+		
+			# 3. Yeni park yerinin hafızasına arabayı ekle
+			to_tube.ball_stack.append(ball_to_move)		
 			selected_tube = null
