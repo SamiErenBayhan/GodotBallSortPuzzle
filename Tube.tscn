@@ -1,13 +1,20 @@
 [gd_scene format=3 uid="uid://bm0qpuchlry4l"]
 
 [ext_resource type="Script" uid="uid://dho8ttyd26iqf" path="res://tube.gd" id="1_fm3gm"]
+[ext_resource type="Texture2D" uid="uid://dsw6iw7toyqki" path="res://park_yeri.png" id="2_ft0pj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fm3gm"]
-size = Vector2(64, 216)
+size = Vector2(64, 208)
 
 [node name="Tube" type="Area2D" unique_id=1572788644]
+light_mask = 2
 script = ExtResource("1_fm3gm")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1748954773]
-position = Vector2(0, 20)
 shape = SubResource("RectangleShape2D_fm3gm")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1740387441]
+texture_filter = 1
+position = Vector2(-1.9073486e-06, 4.887581e-06)
+scale = Vector2(0.28880867, 0.29946524)
+texture = ExtResource("2_ft0pj")

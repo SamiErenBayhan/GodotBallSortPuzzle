@@ -3,7 +3,7 @@ extends Node2D
 const TUBE_SCENE = preload("res://Tube.tscn")
 const BALL_SCENE = preload("res://Ball.tscn")
 
-const HOVER_HEIGHT = 60
+const HOVER_HEIGHT = 50
 
 const GAME_COLORS = {
 	"Kırmızı": Color.RED,
@@ -31,25 +31,16 @@ func build_level(level_data: Array):
 	var screen_width = screen_size.x
 	var screen_height = screen_size.y
 	
-	var spacing_x = screen_width * 0.25 # Ekran genişliğinin %15'i kadar yan yana boşluk
-	var spacing_y = screen_height * 0.45 # Ekran yüksekliğinin %35'i kadar altlı üstlü boşluk
-	
-	var start_x = (screen_width - (2 * spacing_x)) / 2.0
-	var row_1_y = screen_height * 0.30 # Üst satır ekranın yukarısından %30 aşağıda dursun
+	var spacing_x = screen_width * 0.1 # Ekran genişliğinin %15'i kadar yan yana boşluk
+	var total_spacing_x = 5 * spacing_x
+	var start_x = (screen_width - total_spacing_x) / 2
+	var row_1_y = screen_height * 0.50 # Üst satır ekranın yukarısından %30 aşağıda dursun
 	
 	for i in range(level_data.size()):
 		var new_tube = TUBE_SCENE.instantiate()
 		new_tube.name = "Tube_" + str(i)
-		
-		# 💡 ALTLI ÜSTLÜ SİHİR: 
-		# İlk 3 tüp (0,1,2) üst satıra, kalanlar (3,4,5) alt satıra dizilir!
-		if i < 3:
-			new_tube.global_position = Vector2(start_x + (i * spacing_x), row_1_y)
-		else:
-			new_tube.global_position = Vector2(start_x + ((i - 3) * spacing_x), row_1_y + spacing_y)
-			
+		new_tube.global_position = Vector2(start_x + (i * spacing_x), row_1_y)
 		add_child(new_tube)
-		
 		# Godot'nun en sağlam, orijinal tıklama bağlantısı:
 		new_tube.input_event.connect(_on_tube_clicked.bind(new_tube))
 		
@@ -62,6 +53,7 @@ func build_level(level_data: Array):
 			
 			new_ball.global_position = new_tube.get_next_available_position()
 			add_child(new_ball)
+			new_ball.z_index = 5
 			new_tube.ball_stack.append(new_ball)
 
 # Boş tüpleri de, renk uyumunu da %100 kusursuz yöneten ana motor:
