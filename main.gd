@@ -6,20 +6,20 @@ const BALL_SCENE = preload("res://Ball.tscn")
 const HOVER_HEIGHT = 50
 
 const GAME_COLORS = {
-	"Kırmızı": Color.RED,
-	"Mavi": Color.BLUE,
-	"Yeşil": Color.GREEN,
-	"Sarı": Color.YELLOW
+	"Kırmızı":preload("res://RedCar.png") ,
+	"Mavi": preload("res://BlueCar.png"),
+	"Yeşil": preload("res://GreenCar.png"),
+	"Gri": preload("res://YellowCar.png")
 }
 
 var selected_tube = null
 
 func _ready():
 	var test_level = [
-		["Kırmızı", "Mavi", "Yeşil", "Sarı"],
-		["Sarı", "Yeşil", "Mavi", "Kırmızı"],
-		["Mavi", "Kırmızı", "Sarı", "Yeşil"],
-		["Yeşil", "Sarı", "Kırmızı", "Mavi"],
+		["Kırmızı", "Mavi", "Yeşil", "Gri"],
+		["Gri", "Yeşil", "Mavi", "Kırmızı"],
+		["Mavi", "Kırmızı", "Gri", "Yeşil"],
+		["Yeşil", "Gri", "Kırmızı", "Mavi"],
 		[], # Boş tüp 1
 		[]  # Boş tüp 2
 	]
@@ -31,9 +31,9 @@ func build_level(level_data: Array):
 	var screen_width = screen_size.x
 	var screen_height = screen_size.y
 	
-	var spacing_x = screen_width * 0.1 # Ekran genişliğinin %15'i kadar yan yana boşluk
-	var total_spacing_x = 5 * spacing_x
-	var start_x = (screen_width - total_spacing_x) / 2
+	var spacing_x = screen_width * 0.075 # Ekran genişliğinin %15'i kadar yan yana boşluk
+	var total_spacing_x = 0.8 * spacing_x
+	var start_x = (screen_width - total_spacing_x) / 3
 	var row_1_y = screen_height * 0.50 # Üst satır ekranın yukarısından %30 aşağıda dursun
 	
 	for i in range(level_data.size()):
@@ -49,7 +49,7 @@ func build_level(level_data: Array):
 		for color_name in tube_colors:
 			var new_ball = BALL_SCENE.instantiate()
 			var target_color = GAME_COLORS[color_name]
-			new_ball.set_ball_color(color_name, target_color)
+			new_ball.set_car_sprite(color_name, target_color)
 			
 			new_ball.global_position = new_tube.get_next_available_position()
 			add_child(new_ball)

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dsw6iw7toyqki"
-path="res://.godot/imported/park_yeri.png-51b95fcf6a2958a6c03437f9262313eb.ctex"
+uid="uid://fp56uh6kpxsg"
+path="res://.godot/imported/CarSortPuzzleBackGround.png-45c9584b0e609dfa80b53cd4d3e1c6ff.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://park_yeri.png"
-dest_files=["res://.godot/imported/park_yeri.png-51b95fcf6a2958a6c03437f9262313eb.ctex"]
+source_file="res://CarSortPuzzleBackGround.png"
+dest_files=["res://.godot/imported/CarSortPuzzleBackGround.png-45c9584b0e609dfa80b53cd4d3e1c6ff.ctex"]
 
 [params]
 

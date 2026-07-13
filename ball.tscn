@@ -1,12 +1,13 @@
 [gd_scene format=3 uid="uid://dsn8y3tmt77oq"]
 
-[ext_resource type="Texture2D" uid="uid://4fy2ij6ob6f0" path="res://sport_yellow.png" id="1_41u45"]
 [ext_resource type="Script" uid="uid://cdstc8cy4lbp4" path="res://ball.gd" id="2_41u45"]
 
-[node name="Ball" type="Sprite2D" unique_id=1100414233]
+[node name="Ball" type="Node2D" unique_id=1233219801]
 visibility_layer = 2
 z_index = 1
 texture_filter = 1
-scale = Vector2(0.7741935, 0.45070425)
-texture = ExtResource("1_41u45")
+position = Vector2(7.6293945e-06, 0)
+scale = Vector2(1.0537635, 1.0666667)
 script = ExtResource("2_41u45")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=704758553]

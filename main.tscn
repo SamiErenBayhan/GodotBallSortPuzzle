@@ -1,6 +1,12 @@
 [gd_scene format=3 uid="uid://c7bdmaujudlae"]
 
 [ext_resource type="Script" uid="uid://djdjq00qvgfwm" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://fp56uh6kpxsg" path="res://CarSortPuzzleBackGround.png" id="2_0xm2m"]
 
 [node name="Main" type="Node2D" unique_id=1608288079]
 script = ExtResource("1_0xm2m")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=889853609]
+position = Vector2(576, 324)
+scale = Vector2(1.1111112, 1.123457)
+texture = ExtResource("2_0xm2m")
