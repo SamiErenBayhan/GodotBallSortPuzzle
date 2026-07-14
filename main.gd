@@ -56,7 +56,7 @@ func build_level(level_data: Array):
 			new_ball.z_index = 5
 			new_tube.ball_stack.append(new_ball)
 
-# Boş tüpleri de, renk uyumunu da %100 kusursuz yöneten ana motor:
+
 func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked_tube: Area2D):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		var from_tube = selected_tube
@@ -69,21 +69,19 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			var top_ball = selected_tube.ball_stack.back()
 			top_ball.global_position.y -= HOVER_HEIGHT
 			
-		# 2. DURUM: Aynı tüpe tekrar tıklama (İptal)
+		# 2. Aynı tüpe tekrar tıklama 
 		elif selected_tube == clicked_tube or to_tube.ball_stack.size() >= to_tube.MAX_CAPACITY:
 			var top_ball = selected_tube.ball_stack.back()
 			top_ball.global_position.y += HOVER_HEIGHT
 			selected_tube = null
 			
-		# 3. DURUM: Başka tüpe transfer
+		# Başka tüpe transfer
 		else:
 			# Hedef tüp doluysa hamleyi engelle
 			if to_tube.ball_stack.size() >= to_tube.MAX_CAPACITY:
 				return
 			
 			var ball_to_move = from_tube.ball_stack.back()
-			
-			
 			if not to_tube.ball_stack.is_empty():
 				var target_top_ball = to_tube.ball_stack.back()
 				var top_ball = selected_tube.ball_stack.back()
@@ -95,18 +93,26 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			from_tube.ball_stack.pop_back()
 			var tween = create_tween()
 			var target_pos = to_tube.get_next_available_position()
-			var transit_y = from_tube.global_position.y - 150
-			# AŞAMA A - YUKARI ÇIK: Araba önce park yerinden dikey olarak yukarı, koridora fırlar
-			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.15)\
+			var transit_y = from_tube.global_position.y - 250
+			
+			# Araba önce park yerinden dikey olarak yukarı, koridora fırlar
+			#İvmelenerek Hızlanma: .set_trans(Tween.TRANS_QUAD)\
+			#Sakince yavaşlama: .set_ease(Tween.EASE_OUT)
+			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.4)\
 			.set_trans(Tween.TRANS_QUAD)\
 			.set_ease(Tween.EASE_OUT)
 			
-			# AŞAMA B - YATAYDA İLERLE: Araba havada süzülerek hedef tüpün tam kapağının üstüne gelir
-			tween.tween_property(ball_to_move, "global_position:x", target_pos.x, 0.25)\
+			tween.tween_property(ball_to_move, "rotation", deg_to_rad(90), 0.5)\
+			.set_trans(Tween.TRANS_CUBIC)\
+			.set_ease(Tween.EASE_OUT)
+			# Araba havada süzülerek hedef tüpün tam kapağının üstüne gelir
+			tween.tween_property(ball_to_move, "global_position:x", target_pos.x, 0.4)\
 			.set_trans(Tween.TRANS_QUAD)
 			
-			# AŞAMA C - İÇERİ GİR: Tam ağzına hizalanınca, yukarıdan aşağıya doğru park yerine süzülür
-			tween.tween_property(ball_to_move, "global_position:y", target_pos.y, 0.20)\
+			tween.tween_property(ball_to_move, "rotation", deg_to_rad(0), 0.5)\
+			.set_trans(Tween.TRANS_QUAD)
+			#Tam ağzına hizalanınca, yukarıdan aşağıya doğru park yerine süzülür
+			tween.tween_property(ball_to_move, "global_position:y", target_pos.y, 0.5)\
 			.set_trans(Tween.TRANS_CUBIC)\
 			.set_ease(Tween.EASE_OUT)
 		
