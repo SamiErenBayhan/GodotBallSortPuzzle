@@ -83,7 +83,7 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			
 			var ball_to_move = from_tube.ball_stack.back()
 			
-			# 💡 BOŞ TÜP KONTROLÜ: Hedef tüp boşsa renk ne olursa olsun transferi KABUL ET!
+			
 			if not to_tube.ball_stack.is_empty():
 				var target_top_ball = to_tube.ball_stack.back()
 				var top_ball = selected_tube.ball_stack.back()
@@ -95,7 +95,7 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			from_tube.ball_stack.pop_back()
 			var tween = create_tween()
 			var target_pos = to_tube.get_next_available_position()
-			var transit_y = from_tube.global_position.y - 120
+			var transit_y = from_tube.global_position.y - 150
 			# AŞAMA A - YUKARI ÇIK: Araba önce park yerinden dikey olarak yukarı, koridora fırlar
 			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.15)\
 			.set_trans(Tween.TRANS_QUAD)\

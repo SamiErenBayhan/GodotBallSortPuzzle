@@ -8,10 +8,10 @@ var slot_positions: Array = []
 func _ready() -> void:
 	# Saf Node2D dünyasındayız, ofsetler eksi (yukarı doğru) çalışır:
 	slot_positions = [
-		Vector2(0, 180),   # 1. kat (En dip)
-		Vector2(0, 95),   # 2. kat
-		Vector2(0, 10),  # 3. kat
-		Vector2(0, -75)   # 4. kat (En üst)
+		Vector2(0, 120),   # 1. kat (En dip)
+		Vector2(0, 35),   # 2. kat
+		Vector2(0, -50),  # 3. kat
+		Vector2(0, -135)   # 4. kat (En üst)
 	]
 
 func get_next_available_position() -> Vector2:

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fp56uh6kpxsg"
-path="res://.godot/imported/CarSortPuzzleBackGround.png-45c9584b0e609dfa80b53cd4d3e1c6ff.ctex"
+uid="uid://cmfw0yg5yld0x"
+path="res://.godot/imported/CarPlace.png-0e2d5c7344d2049bc29460827a3260a7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://CarSortPuzzleBackGround.png"
-dest_files=["res://.godot/imported/CarSortPuzzleBackGround.png-45c9584b0e609dfa80b53cd4d3e1c6ff.ctex"]
+source_file="res://CarPlace.png"
+dest_files=["res://.godot/imported/CarPlace.png-0e2d5c7344d2049bc29460827a3260a7.ctex"]
 
 [params]
 
