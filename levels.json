@@ -1,0 +1,24 @@
+{
+  "1": [
+	["Red", "Blue", "Red", "Blue"],
+	["Blue", "Red", "Blue", "Red"],
+	[],
+	[]
+  ],
+  "2": [
+	["Yellow", "Green", "Yellow", "Green"],
+	["Green", "Red", "Green", "Red"],
+	["Red", "Yellow", "Red", "Yellow"],
+	[],
+	[]
+  ],
+  "3": [
+	["Blue", "Yellow", "Red", "Green"],
+	["Green", "Blue", "Yellow", "Red"],
+	["Red", "Green", "Blue", "Yellow"],
+	["Yellow", "Red", "Green", "Blue"],
+	[],
+	[],
+	[]
+  ]
+}

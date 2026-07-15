@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://c7bdmaujudlae"]
 
-[ext_resource type="Script" uid="uid://djdjq00qvgfwm" path="res://main.gd" id="1_0xm2m"]
-[ext_resource type="Texture2D" uid="uid://cpm837eqeko3y" path="res://CarSortPuzzleBackGround (2).png" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://djdjq00qvgfwm" path="res://Scripts/main.gd" id="1_bo1nx"]
+[ext_resource type="Texture2D" uid="uid://cpm837eqeko3y" path="res://Assets/CarSortPuzzleBackGround (2).png" id="2_8gbba"]
 
 [node name="Main" type="Node2D" unique_id=1608288079]
-script = ExtResource("1_0xm2m")
+script = ExtResource("1_bo1nx")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=889853609]
 position = Vector2(576.2, 324)
 scale = Vector2(0.99965274, 1.0125)
-texture = ExtResource("2_0xm2m")
+texture = ExtResource("2_8gbba")
 region_enabled = true
 region_rect = Rect2(64, 40, 1152, 640)

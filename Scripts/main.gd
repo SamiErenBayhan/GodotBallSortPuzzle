@@ -1,54 +1,54 @@
 extends Node2D
 
-const TUBE_SCENE = preload("res://Tube.tscn")
-const BALL_SCENE = preload("res://Ball.tscn")
-
+const TUBE_SCENE = preload("res://Scenes/Tube.tscn")
+const BALL_SCENE = preload("res://Scenes/ball.tscn")
 const HOVER_HEIGHT = 50
 
-const GAME_COLORS = {
-	"Kırmızı":preload("res://RedCar.png") ,
-	"Mavi": preload("res://BlueCar.png"),
-	"Yeşil": preload("res://GreenCar.png"),
-	"Gri": preload("res://YellowCar.png")
+const CAR_COLORS = {
+	"Red":preload("res://Assets/RedCar.png") ,
+	"Blue": preload("res://Assets/BlueCar.png"),
+	"Green": preload("res://Assets/GreenCar.png"),
+	"Yellow": preload("res://Assets/YellowCar.png")
 }
 
 var selected_tube = null
+var current_level: int = 3
+var all_levels_data: Dictionary = {} #Json'ın duracağı yer.
 
 func _ready():
-	var test_level = [
-		["Kırmızı", "Mavi", "Yeşil", "Gri"],
-		["Gri", "Yeşil", "Mavi", "Kırmızı"],
-		["Mavi", "Kırmızı", "Gri", "Yeşil"],
-		["Yeşil", "Gri", "Kırmızı", "Mavi"],
-		[], # Boş tüp 1
-		[]  # Boş tüp 2
-	]
-	build_level(test_level)
+	load_levels_from_json()
+	build_level()
 
-func build_level(level_data: Array):
-	# Ekrana elinle milimetrik grid çiziyoruz:
+func build_level():
+	
+	var level_key = str(current_level)
+	if not all_levels_data.has(level_key):
+		print("HATA: JSON dosyasında Level " + level_key + " bulunamadı!")
+		return
+	
+	var level_data = all_levels_data[level_key]
 	var screen_size = get_viewport_rect().size
 	var screen_width = screen_size.x
 	var screen_height = screen_size.y
-	
-	var spacing_x = screen_width * 0.075 # Ekran genişliğinin %15'i kadar yan yana boşluk
-	var total_spacing_x = 0.8 * spacing_x
-	var start_x = (screen_width - total_spacing_x) / 3
+	var tube_count = level_data.size()
+	var spacing_x = 100.0
+	var total_group_width = (tube_count - 1) * spacing_x
+	var start_x = (screen_width - total_group_width) / 2.0
 	var row_1_y = screen_height * 0.50 # Üst satır ekranın yukarısından %30 aşağıda dursun
 	
-	for i in range(level_data.size()):
+	for i in range(tube_count):
 		var new_tube = TUBE_SCENE.instantiate()
 		new_tube.name = "Tube_" + str(i)
-		new_tube.global_position = Vector2(start_x + (i * spacing_x), row_1_y)
+		var tube_x = start_x + (i * spacing_x)
+		new_tube.global_position = Vector2(tube_x, row_1_y)
 		add_child(new_tube)
-		# Godot'nun en sağlam, orijinal tıklama bağlantısı:
-		new_tube.input_event.connect(_on_tube_clicked.bind(new_tube))
+		new_tube.input_event.connect(_on_tube_clicked.bind(new_tube))#tüpleri ekleyip onları tıklanabilir yapıyoruz.
 		
-		# Topları dizme mantığı (Dünya koordinatıyla pürüzsüz çalışır)
+		# Arabaları dizme mantığı 
 		var tube_colors = level_data[i]
 		for color_name in tube_colors:
 			var new_ball = BALL_SCENE.instantiate()
-			var target_color = GAME_COLORS[color_name]
+			var target_color = CAR_COLORS[color_name]
 			new_ball.set_car_sprite(color_name, target_color)
 			
 			new_ball.global_position = new_tube.get_next_available_position()
@@ -58,7 +58,9 @@ func build_level(level_data: Array):
 
 
 func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked_tube: Area2D):
+	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		
 		var from_tube = selected_tube
 		var to_tube = clicked_tube
 		
@@ -95,27 +97,51 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			var target_pos = to_tube.get_next_available_position()
 			var transit_y = from_tube.global_position.y - 250
 			
-			# Araba önce park yerinden dikey olarak yukarı, koridora fırlar
-			#İvmelenerek Hızlanma: .set_trans(Tween.TRANS_QUAD)\
-			#Sakince yavaşlama: .set_ease(Tween.EASE_OUT)
 			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.4)\
 			.set_trans(Tween.TRANS_QUAD)\
 			.set_ease(Tween.EASE_OUT)
 			
-			tween.tween_property(ball_to_move, "rotation", deg_to_rad(90), 0.5)\
-			.set_trans(Tween.TRANS_CUBIC)\
-			.set_ease(Tween.EASE_OUT)
-			# Araba havada süzülerek hedef tüpün tam kapağının üstüne gelir
+			if target_pos.x > ball_to_move.global_position.x:
+				tween.tween_property(ball_to_move, "rotation", deg_to_rad(90), 0.5)\
+				.set_trans(Tween.TRANS_CUBIC)\
+				.set_ease(Tween.EASE_OUT)
+				
+			elif target_pos.x < ball_to_move.global_position.x:
+				tween.tween_property(ball_to_move, "rotation", deg_to_rad(-90), 0.5)\
+				.set_trans(Tween.TRANS_CUBIC)\
+				.set_ease(Tween.EASE_OUT)
+			
 			tween.tween_property(ball_to_move, "global_position:x", target_pos.x, 0.4)\
-			.set_trans(Tween.TRANS_QUAD)
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_OUT)
 			
 			tween.tween_property(ball_to_move, "rotation", deg_to_rad(0), 0.5)\
-			.set_trans(Tween.TRANS_QUAD)
-			#Tam ağzına hizalanınca, yukarıdan aşağıya doğru park yerine süzülür
+				.set_trans(Tween.TRANS_CUBIC)\
+				.set_ease(Tween.EASE_OUT)
+			
 			tween.tween_property(ball_to_move, "global_position:y", target_pos.y, 0.5)\
 			.set_trans(Tween.TRANS_CUBIC)\
 			.set_ease(Tween.EASE_OUT)
-		
-			# 3. Yeni park yerinin hafızasına arabayı ekle
+			
 			to_tube.ball_stack.append(ball_to_move)		
 			selected_tube = null
+			
+func load_levels_from_json():
+	var file_path = "res://levels.json"
+	if FileAccess.file_exists(file_path):
+		var file = FileAccess.open(file_path, FileAccess.READ)
+		var json_text = file.get_as_text()
+		file.close()
+		
+		# Metni Godot'nun anlayacağı Dictionary formatına çeviriyoruz
+		var json = JSON.new()
+		var error = json.parse(json_text)
+		
+		if error == OK:
+			all_levels_data = json.data
+			print("Bölümler başarıyla yüklendi! Toplam Bölüm: ", all_levels_data.size())
+		else:
+			print("JSON ayrıştırma hatası! Satır: ", json.get_error_line())
+	else:
+		print("HATA: levels.json dosyası bulunamadı!")
+		

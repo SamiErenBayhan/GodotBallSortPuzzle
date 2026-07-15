@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://bm0qpuchlry4l"]
 
-[ext_resource type="Script" uid="uid://dho8ttyd26iqf" path="res://tube.gd" id="1_fm3gm"]
-[ext_resource type="Texture2D" uid="uid://cvwoqu4wr5oed" path="res://ParkingPlace.png" id="2_ft0pj"]
+[ext_resource type="Script" uid="uid://dho8ttyd26iqf" path="res://Scripts/tube.gd" id="1_nggg5"]
+[ext_resource type="Texture2D" uid="uid://cvwoqu4wr5oed" path="res://Assets/ParkingPlace.png" id="2_wn1j0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fm3gm"]
 size = Vector2(71, 335)
 
 [node name="Tube" type="Area2D" unique_id=1572788644]
 light_mask = 2
-script = ExtResource("1_fm3gm")
+script = ExtResource("1_nggg5")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1748954773]
 position = Vector2(0, -4.5)
@@ -16,5 +16,5 @@ shape = SubResource("RectangleShape2D_fm3gm")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=763960931]
 scale = Vector2(0.95871013, 1.0177515)
-texture = ExtResource("2_ft0pj")
+texture = ExtResource("2_wn1j0")
 region_rect = Rect2(594, 191.5, 94, 338)

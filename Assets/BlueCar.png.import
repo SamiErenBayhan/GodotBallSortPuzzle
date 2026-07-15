@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cvwoqu4wr5oed"
-path="res://.godot/imported/ParkingPlace.png-59e3507d4280306afa952870c1ad24fc.ctex"
+uid="uid://d0ydfni446mnm"
+path="res://.godot/imported/BlueCar.png-2348ff5d29f99ed7b6cc1b3ceb8c1cf7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ParkingPlace.png"
-dest_files=["res://.godot/imported/ParkingPlace.png-59e3507d4280306afa952870c1ad24fc.ctex"]
+source_file="res://Assets/BlueCar.png"
+dest_files=["res://.godot/imported/BlueCar.png-2348ff5d29f99ed7b6cc1b3ceb8c1cf7.ctex"]
 
 [params]
 

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dsn8y3tmt77oq"]
 
-[ext_resource type="Script" uid="uid://cdstc8cy4lbp4" path="res://ball.gd" id="2_41u45"]
+[ext_resource type="Script" uid="uid://cdstc8cy4lbp4" path="res://Scripts/ball.gd" id="1_d60mj"]
 
 [node name="Ball" type="Node2D" unique_id=1233219801]
 visibility_layer = 2
@@ -8,6 +8,6 @@ z_index = 1
 texture_filter = 1
 position = Vector2(7.6293945e-06, 0)
 scale = Vector2(1.0537635, 1.0666667)
-script = ExtResource("2_41u45")
+script = ExtResource("1_d60mj")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=704758553]
