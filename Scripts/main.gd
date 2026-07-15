@@ -14,6 +14,7 @@ const CAR_COLORS = {
 var selected_tube = null
 var current_level: int = 3
 var all_levels_data: Dictionary = {} #Json'ın duracağı yer.
+var balls_in_transit: Array = []
 
 func _ready():
 	load_levels_from_json()
@@ -58,7 +59,7 @@ func build_level():
 
 
 func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked_tube: Area2D):
-	
+		
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		
 		var from_tube = selected_tube
@@ -66,9 +67,11 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 		
 		if selected_tube == null:
 			if clicked_tube.ball_stack.is_empty():
-				return # Boş tüpe tıklanırsa hiçbir şey yapma
+				return
+			var top_ball = clicked_tube.ball_stack.back()
+			if top_ball in balls_in_transit:
+				return  # bu top hâlâ havada, henüz seçilemez - AMA diğer tüpler serbest
 			selected_tube = clicked_tube
-			var top_ball = selected_tube.ball_stack.back()
 			top_ball.global_position.y -= HOVER_HEIGHT
 			
 		# 2. Aynı tüpe tekrar tıklama 
@@ -92,9 +95,12 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 					selected_tube = null
 					return
 			
-			from_tube.ball_stack.pop_back()
-			var tween = create_tween()
 			var target_pos = to_tube.get_next_available_position()
+			from_tube.ball_stack.pop_back()
+			to_tube.ball_stack.append(ball_to_move)  # hemen ekleniyor, stack sırası doğru kalır
+			balls_in_transit.append(ball_to_move) 
+			
+			var tween = create_tween()
 			var transit_y = from_tube.global_position.y - 250
 			
 			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.4)\
@@ -123,7 +129,10 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			.set_trans(Tween.TRANS_CUBIC)\
 			.set_ease(Tween.EASE_OUT)
 			
-			to_tube.ball_stack.append(ball_to_move)		
+			tween.finished.connect(func():
+				balls_in_transit.erase(ball_to_move)
+				# Buraya istersen win-check / level tamamlandı kontrolü koyabilirsin
+			)
 			selected_tube = null
 			
 func load_levels_from_json():
