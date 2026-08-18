@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://djdjq00qvgfwm" path="res://Scripts/main.gd" id="1_bo1nx"]
 [ext_resource type="Texture2D" uid="uid://cpm837eqeko3y" path="res://Assets/CarSortPuzzleBackGround (2).png" id="2_8gbba"]
 [ext_resource type="Script" uid="uid://lol4g85n4xdx" path="res://Scripts/LevelManager.gd" id="3_8gbba"]
+[ext_resource type="AudioStream" uid="uid://c0xwy2ev38u4l" path="res://Assets/Sounds/LevelUp.wav" id="4_6bp64"]
+[ext_resource type="AudioStream" uid="uid://dgshnjgid7p53" path="res://Assets/Sounds/CarTouchSound.wav" id="5_344ge"]
 
 [node name="Main" type="Node2D" unique_id=1608288079]
 script = ExtResource("1_bo1nx")
@@ -32,6 +34,14 @@ offset_top = 8.0
 offset_right = 393.0
 offset_bottom = 39.0
 text = "Geri"
+
+[node name="NextLevel" type="AudioStreamPlayer" parent="." unique_id=978270432]
+stream = ExtResource("4_6bp64")
+
+[node name="CarTouchSound" type="AudioStreamPlayer" parent="." unique_id=1921617665]
+stream = ExtResource("5_344ge")
+volume_db = -20.0
+pitch_scale = 0.6
 
 [connection signal="pressed" from="CanvasLayer/Restart" to="." method="restart_level"]
 [connection signal="pressed" from="CanvasLayer/Undo" to="." method="undo_move"]

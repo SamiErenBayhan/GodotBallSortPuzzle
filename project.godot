@@ -13,7 +13,6 @@ config_version=5
 config/name="GodotBallSortPuzzle"
 run/main_scene="uid://c7bdmaujudlae"
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://Assets/icon.svg"
 
 [autoload]
 

@@ -92,12 +92,14 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 				return  
 			selected_tube = clicked_tube
 			top_ball.global_position.y -= HOVER_HEIGHT
-			
+			$CarTouchSound.play()
+		
 		# Aynı tüpe tekrar tıklama 
 		elif selected_tube == clicked_tube or to_tube.ball_stack.size() >= to_tube.MAX_CAPACITY:
 			var top_ball = selected_tube.ball_stack.back()
 			top_ball.global_position.y += HOVER_HEIGHT
 			selected_tube = null
+			$CarTouchSound.play()
 			
 		# Başka tüpe transfer
 		else:
@@ -124,7 +126,7 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			balls_in_transit.append(ball_to_move) 
 			
 			# Animasyon
-			var tween = create_tween()
+			var tween = create_tween().set_parallel(false)
 			var transit_y = from_tube.global_position.y - 250
 			
 			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.4)\
@@ -155,22 +157,27 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			
 			tween.finished.connect(func():
 				balls_in_transit.erase(ball_to_move)
-				if check_all_tubes():
-					level_up()
+				if is_instance_valid(to_tube):
+					to_tube.check_if_completed(balls_in_transit)
+				
+				if balls_in_transit.is_empty():
+					if check_all_tubes():
+						level_up()
 			)
 			selected_tube = null
 			
 func check_all_tubes() -> bool:
+	if not balls_in_transit.is_empty():
+		return false	
 	for child in level_holder.get_children():#kaç tüp olduğunu kontrol ediyoruz. Her levelda sayı aynı olmadığı için her seferinde tek tek kontrol ediyoruz.
 		if child is Tube or "ball_stack" in child:
 			var stack = child.ball_stack#bütün topların bir listesini çıkarıyoruz
-			
 			if stack.is_empty():
 				continue
 			
 			if stack.size() < child.MAX_CAPACITY:
 				return false
-			
+				
 			var first_color = stack[0].ball_color_name
 			for ball in stack:
 				if ball.ball_color_name != first_color:
@@ -178,10 +185,10 @@ func check_all_tubes() -> bool:
 	return true
 	
 func level_up():
-	
 	current_level += 1	
 	build_level()
-
+	$NextLevel.play()
+	
 func restart_level():
 	if not balls_in_transit.is_empty():
 		return
@@ -197,7 +204,6 @@ func undo_move():
 		var hovered_ball = selected_tube.ball_stack.back()
 		hovered_ball.global_position.y += HOVER_HEIGHT
 		selected_tube = null
-	
 	if not balls_in_transit.is_empty():
 		return
 	
@@ -207,12 +213,13 @@ func undo_move():
 	var ball = last_move["ball"]
 	
 	current_tube.ball_stack.pop_back()
+	if current_tube.has_method("reset_completion"):
+		current_tube.reset_completion()
 	var target_pos = original_tube.get_next_available_position()
 	ball.global_position = target_pos
 	ball.rotation = 0.0
 	original_tube.ball_stack.append(ball)
 	
-	print(move_history.size())
 	
 
 	
