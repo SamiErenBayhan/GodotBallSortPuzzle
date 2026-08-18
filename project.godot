@@ -15,6 +15,10 @@ run/main_scene="uid://c7bdmaujudlae"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://Assets/icon.svg"
 
+[autoload]
+
+LevelManager="*uid://lol4g85n4xdx"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

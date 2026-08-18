@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d0ydfni446mnm"
-path="res://.godot/imported/BlueCar.png-2348ff5d29f99ed7b6cc1b3ceb8c1cf7.ctex"
+uid="uid://bod0sfu3qnjf4"
+path="res://.godot/imported/car-tilemap.png-51bbe03508c06dee80985d1c78a6c0d4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/BlueCar.png"
-dest_files=["res://.godot/imported/BlueCar.png-2348ff5d29f99ed7b6cc1b3ceb8c1cf7.ctex"]
+source_file="res://car-tilemap.png"
+dest_files=["res://.godot/imported/car-tilemap.png-51bbe03508c06dee80985d1c78a6c0d4.ctex"]
 
 [params]
 
