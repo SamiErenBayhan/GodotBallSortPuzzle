@@ -1,39 +1,141 @@
 [gd_scene format=3 uid="uid://c7bdmaujudlae"]
 
 [ext_resource type="Script" uid="uid://djdjq00qvgfwm" path="res://Scripts/main.gd" id="1_bo1nx"]
-[ext_resource type="Texture2D" uid="uid://cpm837eqeko3y" path="res://Assets/CarSortPuzzleBackGround (2).png" id="2_8gbba"]
 [ext_resource type="Script" uid="uid://lol4g85n4xdx" path="res://Scripts/LevelManager.gd" id="3_8gbba"]
+[ext_resource type="Texture2D" uid="uid://cvr1i02d1w3rt" path="res://Assets/UI/return.png" id="3_ynf5e"]
 [ext_resource type="AudioStream" uid="uid://c0xwy2ev38u4l" path="res://Assets/Sounds/LevelUp.wav" id="4_6bp64"]
 [ext_resource type="AudioStream" uid="uid://dgshnjgid7p53" path="res://Assets/Sounds/CarTouchSound.wav" id="5_344ge"]
+[ext_resource type="Texture2D" uid="uid://brym385g02u8e" path="res://Assets/UI/arrowLeft.png" id="5_ynf5e"]
+[ext_resource type="FontFile" uid="uid://citmf6mnkhgel" path="res://Assets/Font/Kenney Future Narrow.ttf" id="6_344ge"]
+[ext_resource type="Texture2D" uid="uid://c77rjmpv2tbtf" path="res://Assets/UI/barsHorizontal.png" id="6_hptm8"]
+[ext_resource type="FontFile" uid="uid://dvmserdtjp2e2" path="res://Assets/Font/Kenney Future.ttf" id="11_6iyac"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_21xkr"]
+load_path = "res://.godot/imported/button_square_depth_flat.png-b28f5a2d4bca832c7e3b4d30127f4903.ctex"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_hptm8"]
+load_path = "res://.godot/imported/menuGrid.png-33c766f844ace47660705e20d0a35a5e.ctex"
 
 [node name="Main" type="Node2D" unique_id=1608288079]
 script = ExtResource("1_bo1nx")
-
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=889853609]
-position = Vector2(576.2, 324)
-scale = Vector2(0.99965274, 1.0125)
-texture = ExtResource("2_8gbba")
-region_enabled = true
-region_rect = Rect2(64, 40, 1152, 640)
 
 [node name="Node" type="Node" parent="." unique_id=140154311]
 script = ExtResource("3_8gbba")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1156831808]
 
-[node name="Restart" type="Button" parent="CanvasLayer" unique_id=293138730]
-offset_left = 208.0
-offset_top = 8.0
-offset_right = 339.0
-offset_bottom = 39.0
-text = "Yeniden Başlat"
+[node name="RestartButton" type="TextureButton" parent="CanvasLayer" unique_id=1341695419]
+texture_filter = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -328.0
+offset_top = 64.0
+offset_right = -184.0
+offset_bottom = 202.0
+grow_horizontal = 0
+texture_normal = SubResource("CompressedTexture2D_21xkr")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="Undo" type="Button" parent="CanvasLayer" unique_id=63274779]
-offset_left = 352.0
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/RestartButton" unique_id=411086892]
+texture_filter = 1
+layout_mode = 0
+offset_top = -8.0
+offset_right = 136.0
+offset_bottom = 128.0
+texture = ExtResource("3_ynf5e")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="UndoButton" type="TextureButton" parent="CanvasLayer" unique_id=284485359]
+texture_filter = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -160.0
+offset_top = 56.0
+offset_right = -24.0
+offset_bottom = 208.0
+grow_horizontal = 0
+texture_normal = SubResource("CompressedTexture2D_21xkr")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/UndoButton" unique_id=969403383]
+texture_filter = 1
+layout_mode = 0
+offset_left = 8.0
+offset_top = 16.0
+offset_right = 128.0
+offset_bottom = 128.0
+texture = ExtResource("5_ynf5e")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MenuButton" type="TextureButton" parent="CanvasLayer" unique_id=2010056326]
+texture_filter = 1
+offset_left = 24.0
+offset_top = 64.0
+offset_right = 168.0
+offset_bottom = 202.0
+texture_normal = SubResource("CompressedTexture2D_21xkr")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MenuButton" unique_id=923133102]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -64.0
 offset_top = 8.0
-offset_right = 393.0
-offset_bottom = 39.0
-text = "Geri"
+offset_right = 56.0
+offset_bottom = 120.0
+grow_horizontal = 2
+texture = ExtResource("6_hptm8")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ExtraTubeButton" type="TextureButton" parent="CanvasLayer" unique_id=114958318]
+texture_filter = 1
+offset_left = 192.0
+offset_top = 64.0
+offset_right = 336.0
+offset_bottom = 202.0
+texture_normal = SubResource("CompressedTexture2D_21xkr")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/ExtraTubeButton" unique_id=1184725279]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -64.0
+offset_top = 8.0
+offset_right = 56.0
+offset_bottom = 120.0
+grow_horizontal = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LevelLabel" type="Label" parent="CanvasLayer" unique_id=431840537]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -196.0
+offset_top = 219.0
+offset_right = 205.0
+offset_bottom = 311.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("6_344ge")
+theme_override_font_sizes/font_size = 61
+text = "Level 1"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="NextLevel" type="AudioStreamPlayer" parent="." unique_id=978270432]
 stream = ExtResource("4_6bp64")
@@ -43,5 +145,93 @@ stream = ExtResource("5_344ge")
 volume_db = -20.0
 pitch_scale = 0.6
 
-[connection signal="pressed" from="CanvasLayer/Restart" to="." method="restart_level"]
-[connection signal="pressed" from="CanvasLayer/Undo" to="." method="undo_move"]
+[node name="VictoryLayer" type="CanvasLayer" parent="." unique_id=507210060]
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="VictoryLayer" unique_id=498560013]
+offset_right = 1080.0
+offset_bottom = 1920.0
+color = Color(0.13725491, 0.13725491, 0.13725491, 0.88235295)
+
+[node name="VictoryText" type="Label" parent="VictoryLayer" unique_id=2107535356]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -146.5
+offset_top = -36.0
+offset_right = 146.5
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.8, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.99607843)
+theme_override_constants/line_spacing = 1
+theme_override_constants/outline_size = 9
+theme_override_fonts/font = ExtResource("6_344ge")
+theme_override_font_sizes/font_size = 100
+text = "Great!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuLayer" type="CanvasLayer" parent="." unique_id=1018324362]
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="MenuLayer" unique_id=346482869]
+texture_filter = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -136.0
+offset_top = -244.0
+offset_right = 120.0
+offset_bottom = 228.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.40392157, 0.20392157, 0.10980392, 1)
+
+[node name="TextureButton" type="TextureButton" parent="MenuLayer" unique_id=1379677524]
+texture_filter = 1
+offset_left = 464.0
+offset_top = 144.0
+offset_right = 514.0
+offset_bottom = 194.0
+tooltip_text = "
+"
+texture_normal = SubResource("CompressedTexture2D_hptm8")
+
+[node name="Label" type="Label" parent="MenuLayer" unique_id=591600178]
+offset_left = 514.0
+offset_top = 152.0
+offset_right = 666.0
+offset_bottom = 219.0
+theme_override_fonts/font = ExtResource("11_6iyac")
+theme_override_font_sizes/font_size = 28
+text = "Level
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=834606264]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_right = 1080.0
+offset_bottom = 1920.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="CenterContainer" unique_id=2140791299]
+layout_mode = 2
+theme_override_constants/h_separation = 50
+theme_override_constants/v_separation = 100
+columns = 5
+
+[connection signal="pressed" from="CanvasLayer/RestartButton" to="." method="restart_level"]
+[connection signal="pressed" from="CanvasLayer/UndoButton" to="." method="undo_move"]

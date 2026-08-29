@@ -1,8 +1,14 @@
 extends Node2D
 
+@onready var victory_layer = $VictoryLayer
+@onready var victory_text = $VictoryLayer/VictoryText
+@onready var level_label = $CanvasLayer/LevelLabel
+@onready var tubes_grid = $CenterContainer/GridContainer
+
 const TUBE_SCENE = preload("res://Scenes/Tube.tscn")
 const BALL_SCENE = preload("res://Scenes/ball.tscn")
 const HOVER_HEIGHT = 50
+const PRAISE_TEXTS = ["GREAT!", "AWESOME!", "FANTASTIC!", "PERFECT!", "AMAZING!", "EXCELLENT!"]
 
 const CAR_COLORS = {
 	"Red":preload("res://Assets/cars/Red.png") ,
@@ -14,28 +20,35 @@ const CAR_COLORS = {
 	"White": preload("res://Assets/cars/White.png"),
 	"Pink": preload("res://Assets/cars/Pink.png")
 }
-var current_level : int = 1
+var current_level : int = 9
 var selected_tube = null
 var balls_in_transit: Array = []
-var move_history: Array = []
+var move_history: Array = []	
 var level_holder : Node2D = null
+var current_tubes: Array = []
 
 func _ready():
 	LevelManager.load_levels_from_json()
 	build_level()
-
-func build_level():
+	
+	if is_instance_valid(victory_layer):
+		victory_layer.visible = false
+	
+		
+func build_level() -> void:
 	var level_key = str(current_level)
 	if not LevelManager.all_levels_data.has(level_key):
 		current_level = 1
-		return
+		level_key = str(current_level)
+		if not LevelManager.all_levels_data.has(level_key):
+			return
+			
+	level_label.text = "Level " + str(current_level)
 	
-	# Level Holder var mı kontrol ediyoruz, varsa temizliyoruz
-	if level_holder != null and is_instance_valid(level_holder):
-		level_holder.free()
+	if is_instance_valid(level_holder):
+		level_holder.queue_free()
 		level_holder = null
 	
-	# Yeni bir Level Holder oluşturuyoruz, child olarak tanıtıp adlandırıyoruz.
 	level_holder = Node2D.new()
 	level_holder.name = "LevelHolder"
 	add_child(level_holder)
@@ -45,38 +58,54 @@ func build_level():
 	move_history.clear()
 	
 	var level_data = LevelManager.all_levels_data[level_key]
-	var screen_size = get_viewport_rect().size
-	var screen_width = screen_size.x
-	var screen_height = screen_size.y
 	var tube_count = level_data.size()
 	
-	var spacing_x = 75.0
-	var total_group_width = (tube_count - 1) * spacing_x
-	var start_x = (screen_width - total_group_width) / 2.0
-	var row_1_y = screen_height * 0.50 
+	# Eski slotları temizle
+	for child in tubes_grid.get_children():
+		child.queue_free()
 	
+	# queue_free'lerin gerçekten uygulanmasını bekle
+	await get_tree().process_frame
+	
+	var created_tubes: Array = []
+	
+	# 1. AŞAMA: TÜM tüpleri/slotları TEK SEFERDE oluştur (aralarında await YOK)
 	for i in range(tube_count):
-		var new_tube = TUBE_SCENE.instantiate()
-		new_tube.name = "Tube_" + str(i)
+		var slot = Control.new()
+		slot.custom_minimum_size = Vector2(140, 300)
+		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tubes_grid.add_child(slot)
 		
-		var tube_x = start_x + (i * spacing_x)
-		new_tube.global_position = Vector2(tube_x, row_1_y)
-		
-		level_holder.add_child(new_tube) #LevelHolder ın içine yerleştiriyoruz.
-		new_tube.input_event.connect(_on_tube_clicked.bind(new_tube))#tüpleri ekleyip onları tıklanabilir yapıyoruz.
-		
-		# Arabaları dizme mantığı 
+		var tube = TUBE_SCENE.instantiate()
+		tube.name = "Tube_" + str(i)
+		tube.position = slot.custom_minimum_size / 2.0
+		slot.add_child(tube)
+		tube.input_event.connect(_on_tube_clicked.bind(tube))
+		created_tubes.append(tube)
+	
+	current_tubes = created_tubes
+	# 2. AŞAMA: TÜM slotlar eklendikten SONRA, layout'un tam oturmasını bekle
+	# Nested container (CenterContainer > GridContainer) olduğu için 2 frame gerekiyor
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	if not is_instance_valid(level_holder):
+		return
+	
+	# 3. AŞAMA: Artık pozisyonlar kesin final, arabaları güvenle yerleştir
+	for i in range(created_tubes.size()):
+		var tube = created_tubes[i]
 		var tube_colors = level_data[i]
 		for color_name in tube_colors:
 			var new_ball = BALL_SCENE.instantiate()
 			var target_color = CAR_COLORS[color_name]
 			new_ball.set_car_sprite(color_name, target_color)
 			
-			new_ball.global_position = new_tube.get_next_available_position()
-			level_holder.add_child(new_ball)#LevelHolder ın içine yerleştiriyoruz.
+			level_holder.add_child(new_ball)
+			new_ball.global_position = tube.get_next_available_position()
 			new_ball.z_index = 5
-			new_tube.ball_stack.append(new_ball)
-
+			tube.ball_stack.append(new_ball)
+			
 func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked_tube: Area2D):
 		
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -162,37 +191,38 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 				
 				if balls_in_transit.is_empty():
 					if check_all_tubes():
-						level_up()
+						get_tree().create_timer(0.25).timeout.connect(play_victory_transition)
 			)
 			selected_tube = null
 			
 func check_all_tubes() -> bool:
 	if not balls_in_transit.is_empty():
 		return false	
-	for child in level_holder.get_children():#kaç tüp olduğunu kontrol ediyoruz. Her levelda sayı aynı olmadığı için her seferinde tek tek kontrol ediyoruz.
-		if child is Tube or "ball_stack" in child:
-			var stack = child.ball_stack#bütün topların bir listesini çıkarıyoruz
-			if stack.is_empty():
-				continue
-			
-			if stack.size() < child.MAX_CAPACITY:
+	
+	for tube in current_tubes:  
+		if not (tube is Tube):
+			continue
+		var stack = tube.ball_stack
+		if stack.is_empty():
+			continue
+		if stack.size() < tube.MAX_CAPACITY:
+			return false
+		var first_color = stack[0].ball_color_name
+		for ball in stack:
+			if ball.ball_color_name != first_color:
 				return false
-				
-			var first_color = stack[0].ball_color_name
-			for ball in stack:
-				if ball.ball_color_name != first_color:
-					return false
 	return true
 	
 func level_up():
 	current_level += 1	
 	build_level()
-	$NextLevel.play()
 	
 func restart_level():
 	if not balls_in_transit.is_empty():
 		return
-	level_holder.free()
+	if is_instance_valid(level_holder):
+		level_holder.queue_free()
+		level_holder = null
 	build_level()
 	
 func undo_move():
@@ -220,9 +250,35 @@ func undo_move():
 	ball.rotation = 0.0
 	original_tube.ball_stack.append(ball)
 	
+func play_victory_transition():
+	if not is_instance_valid(victory_layer) or not is_instance_valid(victory_text):
+		level_up()
+		return
 	
+	victory_text.text = PRAISE_TEXTS.pick_random()
+	victory_layer.visible = true
+	victory_text.pivot_offset = victory_text.size / 2.0
+	victory_text.scale = Vector2.ZERO
+	victory_text.modulate.a = 0.0 
+	$NextLevel.play()
+	
+	var tween = create_tween()
+	
+	tween.set_parallel(true)
+	tween.tween_property(victory_text, "modulate:a", 1.0, 0.2)
+	tween.tween_property(victory_text, "scale", Vector2(1.15, 1.15), 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
+	tween.chain().tween_property(victory_text, "scale", Vector2(1.0, 1.0), 0.1)
+	tween.tween_interval(0.4)
 	
+	tween.chain().set_parallel(true)
+	tween.tween_property(victory_text, "modulate:a", 0.0, 0.25)
+	tween.tween_property(victory_text, "scale", Vector2(1.3, 1.3), 0.25)
 	
+	tween.chain().tween_callback(func():
+		victory_layer.visible = false
+		level_up() 
+	)
 	
+		
 		
