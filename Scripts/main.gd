@@ -22,7 +22,7 @@ const CAR_COLORS = {
 	"Pink": preload("res://Assets/cars/Pink.png"),
 	"Turquoise": preload("res://Assets/cars/Turquoise.png")
 }
-var current_level : int = 6
+var current_level : int = 9
 var selected_tube = null
 var balls_in_transit: Array = []
 var move_history: Array = []	
@@ -72,8 +72,8 @@ func build_level() -> void:
 	
 	if tube_count >= 11:
 		max_columns = 6
-		global_scale = 1.1          
-		horizontal_spacing = 5
+		global_scale = 1.1         
+		horizontal_spacing = 10
 	
 	elif tube_count >= 9:
 		max_columns = 5

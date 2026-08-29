@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cf1412jcax4cn"
-path="res://.godot/imported/button_rectangle_depth_line.png-d1743ca9802a1147d794476206590b52.ctex"
+uid="uid://bv821kigttr15"
+path="res://.godot/imported/ParkPlace.png-aba4579724a42c2f51bce7f656ff0b12.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/UI/button_rectangle_depth_line.png"
-dest_files=["res://.godot/imported/button_rectangle_depth_line.png-d1743ca9802a1147d794476206590b52.ctex"]
+source_file="res://Assets/UI/ParkPlace.png"
+dest_files=["res://.godot/imported/ParkPlace.png-aba4579724a42c2f51bce7f656ff0b12.ctex"]
 
 [params]
 
