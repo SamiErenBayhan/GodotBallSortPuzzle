@@ -22,7 +22,7 @@ const CAR_COLORS = {
 	"Pink": preload("res://Assets/cars/Pink.png"),
 	"Turquoise": preload("res://Assets/cars/Turquoise.png")
 }
-var current_level : int = 3
+var current_level : int = 6
 var selected_tube = null
 var balls_in_transit: Array = []
 var move_history: Array = []	
@@ -32,7 +32,7 @@ var current_tubes: Array = []
 
 func _ready():
 	
-	tubes_vbox.add_theme_constant_override("separation", int(355 * global_scale.y))
+	tubes_vbox.add_theme_constant_override("separation", int(385 * global_scale.y))
 	LevelManager.load_levels_from_json()
 	build_level()
 	
