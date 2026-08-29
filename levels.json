@@ -1,366 +1,426 @@
 {
 	"1": [
+		[],
 		[
-			"Green",
-			"Red",
 			"Yellow",
+			"Red",
+			"Blue",
 			"Blue"
 		],
 		[
 			"Blue",
+			"Red",
+			"Yellow",
+			"Green"
+		],
+		[],
+		[
+			"Orange",
+			"Orange",
+			"Yellow",
+			"Green"
+		],
+		[
 			"Green",
 			"Yellow",
+			"Green",
 			"Red"
 		],
 		[
 			"Blue",
-			"Green",
-			"Blue",
-			"Yellow"
-		],
-		[],
-		[],
-		[
 			"Red",
-			"Green",
-			"Red",
-			"Yellow"
+			"Orange",
+			"Orange"
 		]
 	],
 	"10": [
 		[
-			"Red",
-			"Orange",
-			"Blue",
+			"Turquoise",
+			"Yellow",
+			"Purple",
 			"Pink"
 		],
 		[
-			"Yellow",
-			"Pink",
+			"Orange",
+			"Red",
+			"Blue",
+			"White"
+		],
+		[
+			"Blue",
+			"Purple",
 			"Yellow",
 			"Green"
 		],
 		[
+			"Yellow",
+			"Red",
+			"Green",
+			"Green"
+		],
+		[
+			"Orange",
+			"Red",
+			"Orange",
+			"Yellow"
+		],
+		[
+			"Purple",
+			"Turquoise",
+			"Turquoise",
+			"Red"
+		],
+		[
+			"Pink",
+			"Orange",
 			"Blue",
-			"Red",
-			"Red",
 			"White"
 		],
 		[
-			"Yellow",
+			"Purple",
+			"Green",
 			"White",
-			"Blue",
 			"Blue"
 		],
 		[
-			"Red",
-			"Purple",
-			"Purple",
-			"Orange"
-		],
-		[],
-		[],
-		[
-			"Purple",
-			"Pink",
-			"Orange",
-			"White"
-		],
-		[
-			"Yellow",
 			"White",
-			"Green",
-			"Green"
-		],
-		[
-			"Orange",
-			"Purple",
-			"Green",
+			"Turquoise",
+			"Pink",
 			"Pink"
-		]
+		],
+		[],
+		[]
 	],
 	"2": [
 		[],
 		[
+			"Green",
+			"Yellow",
+			"Orange",
+			"Red"
+		],
+		[
+			"Orange",
 			"Blue",
-			"Green",
-			"Green",
+			"Orange",
 			"Yellow"
 		],
 		[
 			"Yellow",
-			"Red",
+			"Blue",
 			"Red",
 			"Blue"
 		],
 		[
-			"Yellow",
-			"Blue",
+			"Green",
 			"Red",
-			"Red"
+			"Orange",
+			"Green"
 		],
 		[],
 		[
-			"Green",
 			"Yellow",
 			"Blue",
+			"Red",
 			"Green"
 		]
 	],
 	"3": [
 		[
-			"Red",
+			"Green",
 			"Blue",
 			"Yellow",
-			"Green"
+			"Yellow"
 		],
 		[
-			"Red",
+			"Orange",
 			"Yellow",
-			"Green",
-			"Yellow"
+			"Blue",
+			"Blue"
 		],
 		[],
 		[
-			"Yellow",
-			"Blue",
-			"Blue",
+			"Red",
+			"Green",
+			"Orange",
 			"Red"
 		],
 		[
-			"Green",
-			"Green",
-			"Blue",
+			"Orange",
+			"Orange",
+			"Yellow",
 			"Red"
+		],
+		[
+			"Blue",
+			"Red",
+			"Green",
+			"Green"
 		],
 		[]
 	],
 	"4": [
-		[],
-		[],
 		[
+			"Red",
 			"Green",
 			"Red",
-			"Red",
-			"Green"
-		],
-		[
-			"Yellow",
-			"Blue",
-			"Yellow",
 			"Blue"
 		],
 		[
-			"Blue",
+			"Red",
+			"Orange",
 			"Green",
-			"Yellow",
-			"Red"
+			"Green"
 		],
 		[
-			"Blue",
-			"Yellow",
 			"Green",
-			"Red"
+			"Orange",
+			"Yellow",
+			"Blue"
+		],
+		[],
+		[],
+		[
+			"Orange",
+			"Yellow",
+			"Blue",
+			"Orange"
+		],
+		[
+			"Yellow",
+			"Red",
+			"Yellow",
+			"Blue"
 		]
 	],
 	"5": [
 		[
 			"Red",
-			"Red",
-			"Yellow",
+			"Orange",
+			"Green",
 			"Green"
 		],
 		[],
-		[
-			"Blue",
-			"Green",
-			"Blue",
-			"Yellow"
-		],
 		[],
 		[
-			"Blue",
+			"Yellow",
+			"Yellow",
+			"Orange",
+			"Blue"
+		],
+		[
+			"Orange",
 			"Red",
 			"Red",
 			"Green"
 		],
 		[
+			"Orange",
 			"Yellow",
-			"Green",
 			"Blue",
-			"Yellow"
+			"Red"
+		],
+		[
+			"Yellow",
+			"Blue",
+			"Green",
+			"Blue"
 		]
 	],
 	"6": [
 		[
-			"Green",
-			"Orange",
-			"Green",
-			"Orange"
+			"Red",
+			"Purple",
+			"Blue",
+			"Purple"
 		],
 		[
 			"Red",
-			"Green",
 			"Orange",
+			"Green",
+			"Pink"
+		],
+		[
+			"Pink",
+			"Orange",
+			"Green",
+			"Green"
+		],
+		[
+			"Yellow",
+			"Orange",
+			"Purple",
 			"Yellow"
 		],
 		[],
-		[
-			"Purple",
-			"Yellow",
-			"Blue",
-			"Purple"
-		],
 		[],
 		[
-			"Red",
-			"Green",
 			"Blue",
-			"Blue"
-		],
-		[
-			"Orange",
-			"Yellow",
-			"Yellow",
-			"Purple"
-		],
-		[
+			"Blue",
 			"Purple",
-			"Red",
-			"Red",
 			"Blue"
+		],
+		[
+			"Yellow",
+			"Pink",
+			"Orange",
+			"Yellow"
+		],
+		[
+			"Red",
+			"Red",
+			"Pink",
+			"Green"
 		]
 	],
 	"7": [
 		[
-			"Orange",
+			"Yellow",
 			"Green",
-			"Green",
+			"Purple",
 			"Blue"
 		],
 		[
-			"Purple",
+			"Pink",
+			"Orange",
+			"Pink",
+			"Pink"
+		],
+		[
 			"Red",
-			"Purple",
+			"Green",
+			"Blue",
 			"Green"
 		],
 		[
-			"Red",
-			"Blue",
-			"Orange",
-			"Yellow"
-		],
-		[
 			"Yellow",
-			"Blue",
+			"Pink",
 			"Purple",
-			"Blue"
-		],
-		[
-			"Orange",
-			"Green",
-			"Purple",
-			"Yellow"
-		],
-		[],
-		[
-			"Red",
-			"Orange",
-			"Yellow",
-			"Red"
-		],
-		[]
-	],
-	"8": [
-		[
-			"Blue",
-			"Blue",
-			"Orange",
-			"Red"
-		],
-		[
-			"Green",
-			"Green",
-			"Orange",
-			"Red"
-		],
-		[
-			"Red",
-			"Green",
-			"Blue",
-			"Yellow"
-		],
-		[
-			"Yellow",
-			"Purple",
-			"Orange",
 			"Purple"
 		],
 		[
-			"Purple",
 			"Orange",
-			"Red",
-			"Blue"
+			"Purple",
+			"Yellow",
+			"Orange"
 		],
 		[],
 		[],
 		[
+			"Red",
+			"Blue",
+			"Green",
+			"Blue"
+		],
+		[
 			"Yellow",
+			"Red",
+			"Red",
+			"Orange"
+		]
+	],
+	"8": [
+		[
+			"Red",
+			"Red",
+			"Pink",
+			"Blue"
+		],
+		[
+			"Yellow",
+			"Pink",
+			"Purple",
+			"Green"
+		],
+		[],
+		[
+			"Yellow",
+			"Yellow",
+			"Red",
+			"Orange"
+		],
+		[
+			"Orange",
+			"Blue",
+			"Pink",
+			"Red"
+		],
+		[],
+		[
+			"Orange",
 			"Green",
 			"Purple",
-			"Yellow"
+			"Blue"
+		],
+		[
+			"Green",
+			"Blue",
+			"Green",
+			"Purple"
+		],
+		[
+			"Yellow",
+			"Pink",
+			"Purple",
+			"Orange"
 		]
 	],
 	"9": [
 		[
 			"Red",
-			"White",
 			"Pink",
-			"Blue"
+			"Purple",
+			"White"
+		],
+		[
+			"Turquoise",
+			"Turquoise",
+			"Blue",
+			"Pink"
 		],
 		[],
 		[
-			"Blue",
-			"Blue",
-			"Red",
+			"Yellow",
+			"Yellow",
+			"White",
 			"Orange"
 		],
+		[
+			"Orange",
+			"Orange",
+			"Yellow",
+			"Red"
+		],
 		[],
 		[
-			"Pink",
-			"Orange",
 			"Blue",
-			"Purple"
-		],
-		[
-			"Purple",
-			"Red",
-			"White",
-			"Green"
-		],
-		[
-			"Red",
-			"Pink",
-			"Purple",
-			"Green"
-		],
-		[
-			"Purple",
-			"White",
-			"Orange",
-			"Yellow"
-		],
-		[
-			"White",
 			"Green",
-			"Pink",
+			"Purple",
+			"Pink"
+		],
+		[
+			"Turquoise",
+			"White",
+			"Red",
 			"Green"
 		],
 		[
+			"Turquoise",
+			"Purple",
+			"Blue",
+			"White"
+		],
+		[
+			"Purple",
+			"Green",
+			"Blue",
+			"Pink"
+		],
+		[
+			"Red",
+			"Green",
 			"Yellow",
-			"Yellow",
-			"Orange",
-			"Yellow"
+			"Orange"
 		]
 	]
 }

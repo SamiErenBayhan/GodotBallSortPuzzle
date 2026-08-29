@@ -1,6 +1,6 @@
 extends Node
 
-const CARS =["Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Pink", "White"]
+const CARS =["Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Pink", "White", "Turquoise"]
 const TUBE_CAPACITY = 4
 
 var all_levels_data: Dictionary = {} 
@@ -86,18 +86,17 @@ func has_too_many_matching_cars(board: Array) -> bool:
 
 func generate_level(dificulty: String) -> Array:
 	
-	var filled_tubes = 4
+	var filled_tubes = 5
 	var empty_tubes = 2
-	var shuffle_moves = 200
+	var shuffle_moves = 250
 	
 	if dificulty == "Medium":
-		filled_tubes = 6
-		shuffle_moves = 250
+		filled_tubes = 7
+		shuffle_moves = 350
 		
 	elif dificulty == "Hard":
-		filled_tubes = 8
-		empty_tubes = 2
-		shuffle_moves = 300
+		filled_tubes = 9
+		shuffle_moves = 400
 			
 	while true:
 		var new_board = create_board(filled_tubes, empty_tubes)

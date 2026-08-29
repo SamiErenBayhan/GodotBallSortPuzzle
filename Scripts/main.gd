@@ -3,31 +3,36 @@ extends Node2D
 @onready var victory_layer = $VictoryLayer
 @onready var victory_text = $VictoryLayer/VictoryText
 @onready var level_label = $CanvasLayer/LevelLabel
-@onready var tubes_grid = $CenterContainer/GridContainer
+@onready var tubes_vbox = $TubesVBox
 
 const TUBE_SCENE = preload("res://Scenes/Tube.tscn")
 const BALL_SCENE = preload("res://Scenes/ball.tscn")
 const HOVER_HEIGHT = 50
 const PRAISE_TEXTS = ["GREAT!", "AWESOME!", "FANTASTIC!", "PERFECT!", "AMAZING!", "EXCELLENT!"]
+const TRANSIT_MARGIN = 350.0
 
 const CAR_COLORS = {
-	"Red":preload("res://Assets/cars/Red.png") ,
+	"Red":preload("res://Assets/cars/Red.png"),
 	"Blue": preload("res://Assets/cars/Blue.png"),
 	"Green": preload("res://Assets/cars/Green.png"),
 	"Yellow": preload("res://Assets/cars/Yellow.png"),
 	"Orange": preload("res://Assets/cars/Orange.png"),
 	"Purple": preload("res://Assets/cars/Purple.png"),
 	"White": preload("res://Assets/cars/White.png"),
-	"Pink": preload("res://Assets/cars/Pink.png")
+	"Pink": preload("res://Assets/cars/Pink.png"),
+	"Turquoise": preload("res://Assets/cars/Turquoise.png")
 }
-var current_level : int = 9
+var current_level : int = 3
 var selected_tube = null
 var balls_in_transit: Array = []
 var move_history: Array = []	
 var level_holder : Node2D = null
 var current_tubes: Array = []
 
+
 func _ready():
+	
+	tubes_vbox.add_theme_constant_override("separation", int(355 * global_scale.y))
 	LevelManager.load_levels_from_json()
 	build_level()
 	
@@ -60,32 +65,60 @@ func build_level() -> void:
 	var level_data = LevelManager.all_levels_data[level_key]
 	var tube_count = level_data.size()
 	
-	# Eski slotları temizle
-	for child in tubes_grid.get_children():
-		child.queue_free()
+	var slot_size: Vector2 = Vector2(140, 300)
+	var horizontal_spacing: int = 40
+	var max_columns: int = 4
+	var global_scale: float = 1.0 
 	
-	# queue_free'lerin gerçekten uygulanmasını bekle
+	if tube_count >= 11:
+		max_columns = 6
+		global_scale = 1.1          
+		horizontal_spacing = 5
+	
+	elif tube_count >= 9:
+		max_columns = 5
+		global_scale = 1.15
+		horizontal_spacing = 20
+	else:
+		max_columns = 4
+		global_scale = 1.2      
+		horizontal_spacing = 40
+	
+	# Eski slotları temizle
+	for child in tubes_vbox.get_children():
+		child.queue_free()
 	await get_tree().process_frame
 	
 	var created_tubes: Array = []
+	var index = 0
 	
-	# 1. AŞAMA: TÜM tüpleri/slotları TEK SEFERDE oluştur (aralarında await YOK)
-	for i in range(tube_count):
-		var slot = Control.new()
-		slot.custom_minimum_size = Vector2(140, 300)
-		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tubes_grid.add_child(slot)
+	while index < tube_count:
+		var row_count = min(max_columns, tube_count - index)
 		
-		var tube = TUBE_SCENE.instantiate()
-		tube.name = "Tube_" + str(i)
-		tube.position = slot.custom_minimum_size / 2.0
-		slot.add_child(tube)
-		tube.input_event.connect(_on_tube_clicked.bind(tube))
-		created_tubes.append(tube)
-	
+		var row_center = CenterContainer.new()
+		row_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tubes_vbox.add_child(row_center)
+		
+		var hbox = HBoxContainer.new()
+		hbox.add_theme_constant_override("separation", horizontal_spacing)   # tüpler arası yatay boşluk
+		row_center.add_child(hbox)
+		
+		for col in range(row_count):
+			var slot = Control.new()
+			slot.custom_minimum_size = slot_size
+			slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			hbox.add_child(slot)
+			
+			var tube = TUBE_SCENE.instantiate()
+			tube.name = "Tube_" + str(index)
+			tube.position = slot.custom_minimum_size / 2.0
+			tube.scale = Vector2(global_scale, global_scale)
+			slot.add_child(tube)
+			tube.input_event.connect(_on_tube_clicked.bind(tube))
+			created_tubes.append(tube)
+			index += 1
+			
 	current_tubes = created_tubes
-	# 2. AŞAMA: TÜM slotlar eklendikten SONRA, layout'un tam oturmasını bekle
-	# Nested container (CenterContainer > GridContainer) olduğu için 2 frame gerekiyor
 	await get_tree().process_frame
 	await get_tree().process_frame
 	
@@ -100,7 +133,7 @@ func build_level() -> void:
 			var new_ball = BALL_SCENE.instantiate()
 			var target_color = CAR_COLORS[color_name]
 			new_ball.set_car_sprite(color_name, target_color)
-			
+			new_ball.scale = Vector2(global_scale, global_scale)
 			level_holder.add_child(new_ball)
 			new_ball.global_position = tube.get_next_available_position()
 			new_ball.z_index = 5
@@ -156,7 +189,7 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 			
 			# Animasyon
 			var tween = create_tween().set_parallel(false)
-			var transit_y = from_tube.global_position.y - 250
+			var transit_y = get_safe_transit_y()
 			
 			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.4)\
 			.set_trans(Tween.TRANS_QUAD)\
@@ -278,7 +311,11 @@ func play_victory_transition():
 	tween.chain().tween_callback(func():
 		victory_layer.visible = false
 		level_up() 
-	)
+	)	
 	
-		
-		
+func get_safe_transit_y() -> float:
+	var min_y = INF
+	for tube in current_tubes:
+		if tube.global_position.y < min_y:
+			min_y = tube.global_position.y
+	return min_y - TRANSIT_MARGIN
