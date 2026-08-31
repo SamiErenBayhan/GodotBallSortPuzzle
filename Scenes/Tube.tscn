@@ -5,7 +5,7 @@
 [ext_resource type="AudioStream" uid="uid://c124h3aqi7ktx" path="res://Assets/Sounds/TubeSound.wav" id="3_wn1j0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fm3gm"]
-size = Vector2(96, 446)
+size = Vector2(96, 464)
 
 [sub_resource type="Gradient" id="Gradient_wn1j0"]
 offsets = PackedFloat32Array(0.049382716, 0.2037037, 0.37037036, 0.54320985, 0.72839504, 0.9197531)
@@ -16,7 +16,6 @@ light_mask = 2
 script = ExtResource("1_nggg5")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1748954773]
-position = Vector2(0, -7)
 shape = SubResource("RectangleShape2D_fm3gm")
 
 [node name="FireworkParticles" type="CPUParticles2D" parent="." unique_id=1011401554]
@@ -41,7 +40,6 @@ stream = ExtResource("3_wn1j0")
 volume_db = -20.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=763960931]
-position = Vector2(0, -1.3113375)
 scale = Vector2(1.3055857, 1.4194787)
 texture = ExtResource("2_wn1j0")
 region_rect = Rect2(594, 191.5, 94, 338)

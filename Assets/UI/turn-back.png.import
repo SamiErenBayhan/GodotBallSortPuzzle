@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c417koprl6vso"
-path="res://.godot/imported/Park+1.png-bc2a11821a381aff5f11970ece3c3377.ctex"
+uid="uid://dp0pd2iqo144"
+path="res://.godot/imported/turn-back.png-f61fed59d2dd7307829093c2d2fea325.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/UI/Park+1.png"
-dest_files=["res://.godot/imported/Park+1.png-bc2a11821a381aff5f11970ece3c3377.ctex"]
+source_file="res://Assets/UI/turn-back.png"
+dest_files=["res://.godot/imported/turn-back.png-f61fed59d2dd7307829093c2d2fea325.ctex"]
 
 [params]
 

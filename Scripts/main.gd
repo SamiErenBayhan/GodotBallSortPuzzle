@@ -9,7 +9,10 @@ const TUBE_SCENE = preload("res://Scenes/Tube.tscn")
 const BALL_SCENE = preload("res://Scenes/ball.tscn")
 const HOVER_HEIGHT = 50
 const PRAISE_TEXTS = ["GREAT!", "AWESOME!", "FANTASTIC!", "PERFECT!", "AMAZING!", "EXCELLENT!"]
-const TRANSIT_MARGIN = 350.0
+const ROW_SPLIT_Y: float = 960.0 
+const TRANSIT_MARGIN: float = 340.0
+const LEFT_SIDE_X: float = 50.0
+const RIGHT_SIDE_X: float = 1030.0	
 
 const CAR_COLORS = {
 	"Red":preload("res://Assets/cars/Red.png"),
@@ -22,7 +25,7 @@ const CAR_COLORS = {
 	"Pink": preload("res://Assets/cars/Pink.png"),
 	"Turquoise": preload("res://Assets/cars/Turquoise.png")
 }
-var current_level : int = 9
+var current_level : int = 6
 var selected_tube = null
 var balls_in_transit: Array = []
 var move_history: Array = []	
@@ -82,7 +85,7 @@ func build_level() -> void:
 	else:
 		max_columns = 4
 		global_scale = 1.2      
-		horizontal_spacing = 40
+		horizontal_spacing = 60
 	
 	# Eski slotları temizle
 	for child in tubes_vbox.get_children():
@@ -176,58 +179,19 @@ func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked
 					selected_tube = null
 					return
 			
-			# Hareket eden topları arraye kaydetme
-			var target_pos = to_tube.get_next_available_position()
+			# Hareket eden topları arraye kaydetme. Geri alma işlemi için.
 			move_history.append({
 				"from_tube": from_tube,
 				"to_tube": to_tube,
 				"ball": ball_to_move
 			})
+			var target_pos = to_tube.get_next_available_position()
 			from_tube.ball_stack.pop_back()
 			to_tube.ball_stack.append(ball_to_move) 
 			balls_in_transit.append(ball_to_move) 
-			
-			# Animasyon
-			var tween = create_tween().set_parallel(false)
-			var transit_y = get_safe_transit_y()
-			
-			tween.tween_property(ball_to_move, "global_position:y", transit_y, 0.4)\
-			.set_trans(Tween.TRANS_QUAD)\
-			.set_ease(Tween.EASE_OUT)
-			
-			if target_pos.x > ball_to_move.global_position.x:
-				tween.tween_property(ball_to_move, "rotation", deg_to_rad(90), 0.5)\
-				.set_trans(Tween.TRANS_CUBIC)\
-				.set_ease(Tween.EASE_OUT)
-				
-			elif target_pos.x < ball_to_move.global_position.x:
-				tween.tween_property(ball_to_move, "rotation", deg_to_rad(-90), 0.5)\
-				.set_trans(Tween.TRANS_CUBIC)\
-				.set_ease(Tween.EASE_OUT)
-			
-			tween.tween_property(ball_to_move, "global_position:x", target_pos.x, 0.4)\
-			.set_trans(Tween.TRANS_QUAD)\
-			.set_ease(Tween.EASE_OUT)
-			
-			tween.tween_property(ball_to_move, "rotation", deg_to_rad(0), 0.5)\
-				.set_trans(Tween.TRANS_CUBIC)\
-				.set_ease(Tween.EASE_OUT)
-			
-			tween.tween_property(ball_to_move, "global_position:y", target_pos.y, 0.5)\
-			.set_trans(Tween.TRANS_CUBIC)\
-			.set_ease(Tween.EASE_OUT)
-			
-			tween.finished.connect(func():
-				balls_in_transit.erase(ball_to_move)
-				if is_instance_valid(to_tube):
-					to_tube.check_if_completed(balls_in_transit)
-				
-				if balls_in_transit.is_empty():
-					if check_all_tubes():
-						get_tree().create_timer(0.25).timeout.connect(play_victory_transition)
-			)
+			move_car_to_tube(ball_to_move, from_tube, to_tube, target_pos)
 			selected_tube = null
-			
+		
 func check_all_tubes() -> bool:
 	if not balls_in_transit.is_empty():
 		return false	
@@ -313,9 +277,195 @@ func play_victory_transition():
 		level_up() 
 	)	
 	
-func get_safe_transit_y() -> float:
-	var min_y = INF
+func get_safe_transit_y(from_tube, to_tube) -> float:
+	var top_row_min_y = INF
+	var bottom_row_min_y = INF
+	
 	for tube in current_tubes:
-		if tube.global_position.y < min_y:
-			min_y = tube.global_position.y
-	return min_y - TRANSIT_MARGIN
+		# Tüpün tepesinin global Y konumu eğer tube origin'i ortadaysa boyutun yarısını çıkar
+		var tube_top_y = tube.global_position.y - (tube.size.y / 2.0 if "size" in tube else 0.0)
+		
+		if tube.global_position.y < ROW_SPLIT_Y:
+			if tube_top_y < top_row_min_y:
+				top_row_min_y = tube_top_y
+		else:
+			if tube_top_y < bottom_row_min_y:
+				bottom_row_min_y = tube_top_y
+	var is_from_bottom = from_tube.global_position.y > ROW_SPLIT_Y
+	var is_to_bottom = to_tube.global_position.y > ROW_SPLIT_Y
+	
+	if is_from_bottom and is_to_bottom:
+		return bottom_row_min_y - TRANSIT_MARGIN
+		
+	return top_row_min_y - TRANSIT_MARGIN
+	
+func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_pos: Vector2):
+	
+	var is_from_bottom = from_tube.global_position.y > ROW_SPLIT_Y
+	var is_to_bottom = to_tube.global_position.y > ROW_SPLIT_Y
+	var is_from_top = not is_from_bottom
+	var is_to_top = not is_to_bottom
+	var tween = create_tween().set_parallel(false)
+	var car_rot_speed = 0.15
+	var car_speed = 0.35
+	
+	if is_from_bottom and is_to_top:
+		# En yakın kenarı seç
+		var is_left = from_tube.global_position.x < (1080.0 / 2.0)
+		var top_transit_y = get_safe_transit_y(from_tube, to_tube)
+		var side_x = LEFT_SIDE_X if from_tube.global_position.x < (1000.0 / 2.0) else RIGHT_SIDE_X
+		var mid_transit_y = from_tube.global_position.y - 330.0
+		car.rotation = 0.0
+		tween.tween_property(car, "global_position:y", mid_transit_y, car_speed)\
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		
+		if is_left:
+			# ================= SOL KANATTAN YUKARI =================
+			# B) Sola dön (-90°) ve sol kenara git
+			tween.tween_property(car, "rotation", deg_to_rad(-90), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", side_x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# C) Yukarı dön (0°) ve tavana kadar tırman
+			tween.tween_property(car, "rotation", deg_to_rad(0), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_property(car, "global_position:y", top_transit_y, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			
+			# D) Sağa tüplere doğru dön (+90°) ve hedef tüpün X hizasına kay
+			tween.tween_property(car, "rotation", deg_to_rad(90), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", target_pos.x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# E) Dikleş (0°)
+			tween.tween_property(car, "rotation", deg_to_rad(0), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+				
+		else:
+			# ================= SAĞ KANATTAN YUKARI =================
+			# B) Sağa dön (+90°) ve sağ kenara git
+			tween.tween_property(car, "rotation", deg_to_rad(90), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", side_x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# C) Yukarı dön (0°) ve tavana kadar tırman
+			tween.tween_property(car, "rotation", deg_to_rad(0), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_property(car, "global_position:y", top_transit_y, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			
+			# D) Sola tüplere doğru dön (-90°) ve hedef tüpün X hizasına kay
+			tween.tween_property(car, "rotation", deg_to_rad(-90), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", target_pos.x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# E) Dikleş (0°)
+			tween.tween_property(car, "rotation", deg_to_rad(0), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+		
+		# F) Üst tüpün içine iniş ve açıyı sıfırlama
+		tween.tween_property(car, "global_position:y", target_pos.y, car_speed)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.tween_callback(func(): car.rotation = 0.0)
+	
+	elif is_from_top and is_to_bottom:
+		# Hedefe veya başlangıca en yakın kenarı seç
+		var is_left = from_tube.global_position.x < (1080.0 / 2.0)
+		var side_x = LEFT_SIDE_X if from_tube.global_position.x < (1080.0 / 2.0) else RIGHT_SIDE_X
+		var top_transit_y = get_safe_transit_y(from_tube, to_tube) # En üst tavan
+		var bottom_entry_y = to_tube.global_position.y - 330.0    # Alt tüpün hemen üst hizası
+		
+		tween.tween_property(car, "global_position:y", top_transit_y, car_speed)\
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		# Sağa gidiyorsa saat yönü (+1), Sola gidiyorsa saat yönünün tersi (-1)
+		if is_left:
+			# ================= SOL KANATTAN İNİŞ =================
+			# B) Sola dön (-90°) ve kenara git
+			tween.tween_property(car, "rotation", deg_to_rad(-90), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", side_x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# C) Aşağı dön (-180°) ve in
+			tween.tween_property(car, "rotation", deg_to_rad(-180), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_property(car, "global_position:y", bottom_entry_y, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			
+			# D) Sağa tüplere doğru dön (-90°) ve hizaya gir
+			tween.tween_property(car, "rotation", deg_to_rad(-270), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", target_pos.x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# E) Yukarı dikleş (0°)
+			tween.tween_property(car, "rotation", deg_to_rad(-360), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+				
+		else:
+			# ================= SAĞ KANATTAN İNİŞ =================
+			# B) Sağa dön (+90°) ve kenara git
+			tween.tween_property(car, "rotation", deg_to_rad(90), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", side_x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# C) Aşağı dön (+180°) ve in
+			tween.tween_property(car, "rotation", deg_to_rad(180), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_property(car, "global_position:y", bottom_entry_y, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			
+			# D) Sola tüplere doğru dön (+270°) ve hizaya gir
+			tween.tween_property(car, "rotation", deg_to_rad(270), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			tween.tween_property(car, "global_position:x", target_pos.x, car_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+			
+			# E) Yukarı dikleş (+360°)
+			tween.tween_property(car, "rotation", deg_to_rad(360), car_rot_speed)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+		
+		# Tüpün içine iniş ve açıyı sıfırlama
+		tween.tween_property(car, "global_position:y", target_pos.y, car_speed)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.tween_callback(func(): car.rotation = 0.0)
+		
+	else: # Aynı katta ise
+		var transit_y = get_safe_transit_y(from_tube, to_tube)
+		# Kendi tüpünden tavana çık
+		tween.tween_property(car, "global_position:y", transit_y, car_speed)\
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		
+		# Sağa / Sola dön
+		if target_pos.x > car.global_position.x:
+			tween.tween_property(car, "rotation", deg_to_rad(90), car_rot_speed)
+		elif target_pos.x < car.global_position.x:
+			tween.tween_property(car, "rotation", deg_to_rad(-90), car_rot_speed)
+		
+		# Hedef X'e kay
+		tween.tween_property(car, "global_position:x", target_pos.x, car_speed)\
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		
+		# Dikleş
+		tween.tween_property(car, "rotation", deg_to_rad(0), car_rot_speed)
+		
+		# Hedef tüpe in
+		tween.tween_property(car, "global_position:y", target_pos.y, car_speed)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		
+		
+	tween.finished.connect(func():
+		balls_in_transit.erase(car)
+		if is_instance_valid(to_tube):
+			to_tube.check_if_completed(balls_in_transit)
+		
+		if balls_in_transit.is_empty():
+			if check_all_tubes():
+				get_tree().create_timer(0.25).timeout.connect(play_victory_transition)
+	)	
+				

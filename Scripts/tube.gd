@@ -7,7 +7,7 @@ var slot_positions: Array = []
 var is_completed: bool = false
 
 # Arabalar tüpün dibine çok yakın veya uzak kalırsa bu sayıyla oyna
-const BOTTOM_OFFSET = -5
+const BOTTOM_OFFSET = -10
 
 func get_next_available_position() -> Vector2:
 	var real_height = $Sprite2D.texture.get_height() * $Sprite2D.global_scale.y
