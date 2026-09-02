@@ -35,7 +35,7 @@ const CAR_COLORS = {
 	"Turquoise": preload("res://Assets/cars/Turquoise.png")
 }
 
-var current_level: int = 6
+var current_level: int = 5
 var selected_tube = null
 var balls_in_transit: Array = []
 var move_history: Array = []

@@ -20,6 +20,9 @@ script = ExtResource("1_bo1nx")
 [node name="Node" type="Node" parent="." unique_id=140154311]
 script = ExtResource("3_8gbba")
 
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1422143263]
+position = Vector2(544, 960)
+
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1156831808]
 
 [node name="TubesVBox" type="VBoxContainer" parent="CanvasLayer" unique_id=1430370067]
