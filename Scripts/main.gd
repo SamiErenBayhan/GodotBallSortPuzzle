@@ -7,22 +7,24 @@ extends Node2D
 
 const TUBE_SCENE = preload("res://Scenes/Tube.tscn")
 const BALL_SCENE = preload("res://Scenes/ball.tscn")
-const HOVER_HEIGHT = 50
 const PRAISE_TEXTS = ["GREAT!", "AWESOME!", "FANTASTIC!", "PERFECT!", "AMAZING!", "EXCELLENT!"]
-const ROW_SPLIT_Y: float = 960.0 
-const TRANSIT_MARGIN: float = 340.0
-const TOP_MARGIN: float = 150.0 # üst boşluk
-const BOTTOM_MARGIN: float = 80.0 # alt boşluk 
+
+const HOVER_HEIGHT = 50
+const TOP_MARGIN: float = 220.0
+const BOTTOM_MARGIN: float = 40.0
 const SIDE_MARGIN: float = 50.0
-const MAX_COLUMNS_CAP: int = 6 # bir satırda olabilecek en fazla tüp 
-const COL_GAP_RATIO: float = -0.1 # tüpler arası yatay boşluk tüp genişliğinin oranı
-const ROW_GAP_RATIO: float = 0.1 # satırlar arası dikey boşluk 
-const SIDE_LANE_RATIO: float = 0.6 # her kenarda tüp genişliği kadar araba geçiş şeridi
-const MIN_SCALE: float = 0.5
-const MAX_SCALE: float = 1.3
+const CLEARANCE_OFFSET: float = 10.0 
+
+const COL_GAP_RATIO: float = 0.1 # Tüpler arası yatay boşluk
+const ROW_GAP_RATIO: float = 0.30 # Tüpler arası dikey boşluk
+const SIDE_LANE_RATIO: float = 0.40 # Arabaların kenardan geçeceği şerit payı (tüp genişliğinin %55'i)
+
+# Ölçek sınırları:
+const MIN_SCALE: float = 0.9 
+const MAX_SCALE: float = 1.3 
 
 const CAR_COLORS = {
-	"Red":preload("res://Assets/cars/Red.png"),
+	"Red": preload("res://Assets/cars/Red.png"),
 	"Blue": preload("res://Assets/cars/Blue.png"),
 	"Green": preload("res://Assets/cars/Green.png"),
 	"Yellow": preload("res://Assets/cars/Yellow.png"),
@@ -33,13 +35,15 @@ const CAR_COLORS = {
 	"Turquoise": preload("res://Assets/cars/Turquoise.png")
 }
 
-var current_level : int = 10
+var current_level: int = 6
 var selected_tube = null
 var balls_in_transit: Array = []
-var move_history: Array = []	
-var level_holder : Node2D = null
+var move_history: Array = []
+var level_holder: Node2D = null
 var current_tubes: Array = []
 var tube_base_size: Vector2 = Vector2.ZERO
+var upper_hbox: HBoxContainer = null
+var lower_hbox: HBoxContainer = null
 
 func _ready():
 	setup_vbox_layout()
@@ -47,7 +51,15 @@ func _ready():
 	build_level()
 	if is_instance_valid(victory_layer):
 		victory_layer.visible = false
-		
+
+func setup_vbox_layout():
+	tubes_vbox.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	tubes_vbox.offset_left = 0.0
+	tubes_vbox.offset_right = 0.0
+	tubes_vbox.offset_top = 0.0
+	tubes_vbox.offset_bottom = 0.0
+	tubes_vbox.alignment = BoxContainer.ALIGNMENT_BEGIN
+	
 func build_level() -> void:
 	var level_key = str(current_level)
 	if not LevelManager.all_levels_data.has(level_key):
@@ -77,31 +89,37 @@ func build_level() -> void:
 	var max_columns = layout["max_columns"]
 	var current_scale = layout["scale"]
 	var slot_size = layout["slot_size"]
-	var horizontal_spacing = layout["horizontal_spacing"]
+	var horizontal_spacing = layout["horizontal_spacing"] 
 	var vertical_row_gap = layout["vertical_row_gap"]
 	
-	# Eski slotları temizle
 	for child in tubes_vbox.get_children():
 		child.queue_free()
 	
+	tubes_vbox.position.y = layout["start_y"]
 	tubes_vbox.add_theme_constant_override("separation", vertical_row_gap)
-	await get_tree().process_frame	
+	await get_tree().process_frame
 	
 	var created_tubes: Array = []
 	var index = 0
+	var row_idx = 0
+	upper_hbox = null
+	lower_hbox = null
 	
 	while index < tube_count:
 		var row_count = min(max_columns, tube_count - index)
 		
-		var row_center = CenterContainer.new()
-		row_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tubes_vbox.add_child(row_center)
-		
 		var hbox = HBoxContainer.new()
 		hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+		# Yatay boşluğu dinamik bağladık:
 		hbox.add_theme_constant_override("separation", horizontal_spacing)
 		tubes_vbox.add_child(hbox)
+		
+		if row_idx == 0:
+			upper_hbox = hbox
+		else:
+			lower_hbox = hbox
+		row_idx += 1
 		
 		for col in range(row_count):
 			var slot = Control.new()
@@ -120,7 +138,6 @@ func build_level() -> void:
 			
 	current_tubes = created_tubes
 	await get_tree().process_frame
-	await get_tree().process_frame
 	
 	if not is_instance_valid(level_holder):
 		return
@@ -137,189 +154,39 @@ func build_level() -> void:
 			new_ball.global_position = tube.get_next_available_position()
 			new_ball.z_index = 5
 			tube.ball_stack.append(new_ball)
-			
-func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked_tube: Area2D):
-	
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var from_tube = selected_tube
-		var to_tube = clicked_tube
-		
-		# Tüpe tıklama
-		if selected_tube == null:
-			if clicked_tube.ball_stack.is_empty():
-				return
-			var top_ball = clicked_tube.ball_stack.back()
-			if top_ball in balls_in_transit:
-				return  
-			selected_tube = clicked_tube
-			top_ball.global_position.y -= HOVER_HEIGHT
-			$CarTouchSound.play()
-		
-		# Aynı tüpe tekrar tıklama 
-		elif selected_tube == clicked_tube:
-			var from_top_ball = selected_tube.ball_stack.back()
-			from_top_ball.global_position.y += HOVER_HEIGHT
-			selected_tube = null
-			$CarTouchSound.play()
-		
-		# Dolu olan başka tüpe tıklama
-		elif to_tube.ball_stack.size() >= to_tube.MAX_CAPACITY:
-			var from_top_ball = selected_tube.ball_stack.back()
-			from_top_ball.global_position.y += HOVER_HEIGHT
-			var to_top_ball = to_tube.ball_stack.back()
-			to_top_ball.global_position.y -= HOVER_HEIGHT
-			selected_tube = to_tube
-			$CarTouchSound.play()
-		
-		# Başka tüpe transfer
-		else:
-			if to_tube.ball_stack.size() >= to_tube.MAX_CAPACITY:
-				return
-			var ball_to_move = from_tube.ball_stack.back()
-			if not to_tube.ball_stack.is_empty():
-				var target_top_ball = to_tube.ball_stack.back()
-				var top_ball = selected_tube.ball_stack.back()
-				if ball_to_move.ball_color_name != target_top_ball.ball_color_name:
-					top_ball.global_position.y += HOVER_HEIGHT
-					target_top_ball.global_position.y -= HOVER_HEIGHT
-					$CarTouchSound.play()
-					selected_tube = to_tube
-					return
-			
-			# Hareket eden topları arraye kaydetme. Geri alma işlemi için.
-			move_history.append({
-				"from_tube": from_tube,
-				"to_tube": to_tube,
-				"ball": ball_to_move
-			})
-			var target_pos = to_tube.get_next_available_position()
-			from_tube.ball_stack.pop_back()
-			to_tube.ball_stack.append(ball_to_move) 
-			balls_in_transit.append(ball_to_move) 
-			move_car_to_tube(ball_to_move, from_tube, to_tube, target_pos)
-			selected_tube = null
-		
-func check_all_tubes() -> bool:
-	if not balls_in_transit.is_empty():
-		return false	
-		
-	for tube in current_tubes:  
-		if not (tube is Tube):
-			continue
-		var stack = tube.ball_stack
-		if stack.is_empty():
-			continue
-		if stack.size() < tube.MAX_CAPACITY:
-			return false
-		var first_color = stack[0].ball_color_name
-		for ball in stack:
-			if ball.ball_color_name != first_color:
-				return false
-	return true
-	
-func level_up():
-	current_level += 1	
-	build_level()
-	
-func restart_level():
-	if not balls_in_transit.is_empty():
-		return
-	if is_instance_valid(level_holder):
-		level_holder.queue_free()
-		level_holder = null
-	build_level()
-	
-func undo_move():
-	if move_history.is_empty():
-		return
-	if selected_tube != null:
-		var hovered_ball = selected_tube.ball_stack.back()
-		hovered_ball.global_position.y += HOVER_HEIGHT
-		selected_tube = null
-	if not balls_in_transit.is_empty():
-		return
-	
-	var last_move = move_history.pop_back()
-	var original_tube = last_move["from_tube"]
-	var current_tube = last_move["to_tube"]
-	var ball = last_move["ball"]
-	
-	current_tube.ball_stack.pop_back()
-	if current_tube.has_method("reset_completion"):
-		current_tube.reset_completion()
-	var target_pos = original_tube.get_next_available_position()
-	ball.global_position = target_pos
-	ball.rotation = 0.0
-	original_tube.ball_stack.append(ball)
-	
-func play_victory_transition():
-	if not is_instance_valid(victory_layer) or not is_instance_valid(victory_text):
-		level_up()
-		return
-	
-	victory_text.text = PRAISE_TEXTS.pick_random()
-	victory_layer.visible = true
-	victory_text.pivot_offset = victory_text.size / 2.0
-	victory_text.scale = Vector2.ZERO
-	victory_text.modulate.a = 0.0 
-	$NextLevel.play()
-	
-	var tween = create_tween()
-	
-	tween.set_parallel(true)
-	tween.tween_property(victory_text, "modulate:a", 1.0, 0.2)
-	tween.tween_property(victory_text, "scale", Vector2(1.15, 1.15), 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-	tween.chain().tween_property(victory_text, "scale", Vector2(1.0, 1.0), 0.1)
-	tween.tween_interval(0.4)
-	
-	tween.chain().set_parallel(true)
-	tween.tween_property(victory_text, "modulate:a", 0.0, 0.25)
-	tween.tween_property(victory_text, "scale", Vector2(1.3, 1.3), 0.25)
-	
-	tween.chain().tween_callback(func():
-		victory_layer.visible = false
-		level_up() 
-	)	
-	
-func get_safe_transit_y(from_tube, to_tube) -> float:
-	var top_row_min_y = INF
-	var bottom_row_min_y = INF
-	
-	for tube in current_tubes:
-		var tube_top_y = tube.global_position.y - (tube.size.y / 2.0 if "size" in tube else 0.0)
-		
-		if tube.global_position.y < ROW_SPLIT_Y:
-			if tube_top_y < top_row_min_y:
-				top_row_min_y = tube_top_y
-		else:
-			if tube_top_y < bottom_row_min_y:
-				bottom_row_min_y = tube_top_y
-	var is_from_bottom = from_tube.global_position.y > ROW_SPLIT_Y
-	var is_to_bottom = to_tube.global_position.y > ROW_SPLIT_Y
-	
-	if is_from_bottom and is_to_bottom:
-		return bottom_row_min_y - TRANSIT_MARGIN
-		
-	return top_row_min_y - TRANSIT_MARGIN
-	
+func is_tube_in_upper_row(tube: Node2D) -> bool: 
+	if upper_hbox != null and is_instance_valid(upper_hbox):
+		return tube.get_parent().get_parent() == upper_hbox
+	return false
+
+func get_corridor_y(tube: Node2D) -> float:
+	var car_half_h = 45.0 * tube.scale.y
+	if is_tube_in_upper_row(tube):
+		return upper_hbox.global_position.y - car_half_h - CLEARANCE_OFFSET
+	elif lower_hbox != null and is_instance_valid(lower_hbox):
+		return lower_hbox.global_position.y - car_half_h - CLEARANCE_OFFSET
+	return tube.global_position.y - 200.0
+
 func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_pos: Vector2):
-	var is_from_bottom = from_tube.global_position.y > ROW_SPLIT_Y
-	var is_to_bottom = to_tube.global_position.y > ROW_SPLIT_Y
-	var is_from_top = not is_from_bottom
-	var is_to_top = not is_to_bottom
+	var is_from_top = is_tube_in_upper_row(from_tube)
+	var is_to_top = is_tube_in_upper_row(to_tube)
+	var is_from_bottom = not is_from_top
+	var is_to_bottom = not is_to_top
+	
 	var tween = create_tween().set_parallel(false)
 	var car_rot_speed = 0.15
 	var car_speed = 0.35
 	
+	var upper_corridor_y = get_corridor_y(from_tube if is_from_top else to_tube)
+	
 	if is_from_bottom and is_to_top:
-		# En yakın kenarı seç
-		var top_transit_y = get_safe_transit_y(from_tube, to_tube)
+		var lower_corridor_y = get_corridor_y(from_tube)
 		var side_x = get_dynamic_side_x(from_tube)
 		var is_left = side_x < from_tube.global_position.x
-		var mid_transit_y = from_tube.global_position.y - 330.0
+		
 		car.rotation = 0.0
-		tween.tween_property(car, "global_position:y", mid_transit_y, car_speed)\
+		tween.tween_property(car, "global_position:y", lower_corridor_y, car_speed)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		
 		if is_left: # Soldan yukarı
@@ -333,7 +200,7 @@ func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_po
 			# Yukarı dön ve tavana kadar tırman
 			tween.tween_property(car, "rotation", deg_to_rad(0), car_rot_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			tween.tween_property(car, "global_position:y", top_transit_y, car_speed)\
+			tween.tween_property(car, "global_position:y", upper_corridor_y, car_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			
 			# Sağa tüplere doğru dön ve hedef tüpün X hizasına git
@@ -356,7 +223,7 @@ func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_po
 			# Yukarı dön ve tavana kadar git
 			tween.tween_property(car, "rotation", deg_to_rad(0), car_rot_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			tween.tween_property(car, "global_position:y", top_transit_y, car_speed)\
+			tween.tween_property(car, "global_position:y", upper_corridor_y, car_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			
 			# Sola tüplere doğru dön ve hedef tüpün X hizasına git
@@ -375,16 +242,13 @@ func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_po
 		tween.tween_callback(func(): car.rotation = 0.0)
 	
 	elif is_from_top and is_to_bottom:
-		# En yakın kenarı seç
+		var lower_corridor_y = get_corridor_y(to_tube)
 		var side_x = get_dynamic_side_x(from_tube)
 		var is_left = side_x < from_tube.global_position.x
-		var top_transit_y = get_safe_transit_y(from_tube, to_tube) # En üst tavan
-		var bottom_entry_y = to_tube.global_position.y - 330.0    # Alt tüpün hemen üst hizası
 		
-		# Tüpten çık
-		tween.tween_property(car, "global_position:y", top_transit_y, car_speed)\
+		tween.tween_property(car, "global_position:y", upper_corridor_y, car_speed)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			
+		
 		if is_left: # Soldan aşağı iniş
 			# Sola dön ve kenara git
 			tween.tween_property(car, "rotation", deg_to_rad(-90), car_rot_speed)\
@@ -395,7 +259,7 @@ func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_po
 			# Aşağı dön ve in
 			tween.tween_property(car, "rotation", deg_to_rad(-180), car_rot_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			tween.tween_property(car, "global_position:y", bottom_entry_y, car_speed)\
+			tween.tween_property(car, "global_position:y", lower_corridor_y, car_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			
 			# Sağa tüplere doğru dön ve hizaya gir
@@ -419,7 +283,7 @@ func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_po
 			# Aşağı dön ve in
 			tween.tween_property(car, "rotation", deg_to_rad(180), car_rot_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			tween.tween_property(car, "global_position:y", bottom_entry_y, car_speed)\
+			tween.tween_property(car, "global_position:y", lower_corridor_y, car_speed)\
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			
 			# Sola tüplere doğru dön ve hizaya gir
@@ -438,7 +302,7 @@ func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_po
 		tween.tween_callback(func(): car.rotation = 0.0)
 		
 	else: # Aynı katta ise
-		var transit_y = get_safe_transit_y(from_tube, to_tube)
+		var transit_y = get_corridor_y(from_tube)
 		
 		# Kendi tüpünden tavana çık
 		tween.tween_property(car, "global_position:y", transit_y, car_speed)\
@@ -470,8 +334,66 @@ func move_car_to_tube(car: Node2D, from_tube: Node2D, to_tube: Node2D, target_po
 		if balls_in_transit.is_empty():
 			if check_all_tubes():
 				get_tree().create_timer(0.25).timeout.connect(play_victory_transition)
-	)	
-				
+	)
+
+func _on_tube_clicked(viewport: Node, event: InputEvent, shape_idx: int, clicked_tube: Area2D):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		var from_tube = selected_tube
+		var to_tube = clicked_tube
+		
+		# Tüpe tıklama
+		if selected_tube == null:
+			if clicked_tube.ball_stack.is_empty():
+				return
+			var top_ball = clicked_tube.ball_stack.back()
+			if top_ball in balls_in_transit:
+				return  
+			selected_tube = clicked_tube
+			top_ball.global_position.y -= HOVER_HEIGHT
+			$CarTouchSound.play()
+		
+		# Aynı tüpe tekrar tıklama 
+		elif selected_tube == clicked_tube:
+			var from_top_ball = selected_tube.ball_stack.back()
+			from_top_ball.global_position.y += HOVER_HEIGHT
+			selected_tube = null
+			$CarTouchSound.play()
+		
+		# Dolu olan başka tüpe tıklama
+		elif to_tube.ball_stack.size() >= to_tube.MAX_CAPACITY:
+			var from_top_ball = selected_tube.ball_stack.back()
+			from_top_ball.global_position.y += HOVER_HEIGHT
+			var to_top_ball = to_tube.ball_stack.back()
+			to_top_ball.global_position.y -= HOVER_HEIGHT
+			selected_tube = to_tube
+			$CarTouchSound.play()
+			
+		# Başka tüpe transfer
+		else:
+			var ball_to_move = from_tube.ball_stack.back()
+			if not to_tube.ball_stack.is_empty():
+				var target_top_ball = to_tube.ball_stack.back()
+				var top_ball = selected_tube.ball_stack.back()
+				if ball_to_move.ball_color_name != target_top_ball.ball_color_name:
+					top_ball.global_position.y += HOVER_HEIGHT
+					target_top_ball.global_position.y -= HOVER_HEIGHT
+					$CarTouchSound.play()
+					selected_tube = to_tube
+					return
+			
+			# Hareket eden topları arraye kaydetme. Geri alma işlemi için.
+			move_history.append({
+				"from_tube": from_tube,
+				"to_tube": to_tube,
+				"ball": ball_to_move
+			})
+			var target_pos = to_tube.get_next_available_position()
+			from_tube.ball_stack.pop_back()
+			to_tube.ball_stack.append(ball_to_move) 
+			balls_in_transit.append(ball_to_move) 
+			move_car_to_tube(ball_to_move, from_tube, to_tube, target_pos)
+			selected_tube = null
+
 func get_dynamic_side_x(from_tube) -> float:
 	var min_x = INF
 	var max_x = -INF
@@ -490,10 +412,7 @@ func get_dynamic_side_x(from_tube) -> float:
 	var left_lane_x = min_x - half_w - SIDE_MARGIN
 	var right_lane_x = max_x + half_w + SIDE_MARGIN
 	var center_x = (min_x + max_x) / 2.0
-	if from_tube.global_position.x < center_x:
-		return	left_lane_x
-	else:
-		return right_lane_x 
+	return left_lane_x if from_tube.global_position.x < center_x else right_lane_x
 
 func get_tube_base_size() -> Vector2:
 	if tube_base_size != Vector2.ZERO:
@@ -504,45 +423,135 @@ func get_tube_base_size() -> Vector2:
 	tube_base_size = spr.texture.get_size() * spr.scale
 	temp_tube.queue_free()
 	return tube_base_size
-	
+
 func calculate_layout(tube_count: int) -> Dictionary:
 	var base_size = get_tube_base_size()
-	var max_columns: int
+	
+	var max_columns: int = 4
 	if tube_count >= 11:
 		max_columns = 6
 	elif tube_count >= 9:
 		max_columns = 5
-	else:
-		max_columns = 4
 	
 	var num_rows = ceili(float(tube_count) / max_columns)
 	
-	var col_gap = base_size.x * COL_GAP_RATIO
-	var row_gap = base_size.y * ROW_GAP_RATIO
-	var side_lane_width = base_size.x * SIDE_LANE_RATIO
-	
 	var viewport_size = get_viewport_rect().size
-	var usable_width = viewport_size.x - (SIDE_MARGIN * 2)
+	var usable_width = viewport_size.x - (SIDE_MARGIN * 2.0)
 	var usable_height = viewport_size.y - TOP_MARGIN - BOTTOM_MARGIN
 	
-	var needed_width = max_columns * base_size.x + (max_columns - 1) * col_gap + 2 * side_lane_width
-	var needed_height = num_rows * base_size.y + (num_rows - 1) * row_gap
+	# Dinamik ölçüler
+	var col_gap = base_size.x * COL_GAP_RATIO
+	var row_gap = base_size.y * ROW_GAP_RATIO if num_rows > 1 else 0.0
+	var side_lane_width = base_size.x * SIDE_LANE_RATIO
 	
+	# En üstteki tüplerin üzerinden arabaların geçmesi için gereken görünmez koridor
+	var base_top_flight_corridor = 50
+	
+	# İhtiyaç duyulan toplam alan 
+	var needed_width = (max_columns * base_size.x) + ((max_columns - 1) * col_gap) + (2.0 * side_lane_width)
+	var needed_height = (num_rows * base_size.y) + ((num_rows - 1) * row_gap)
+	
+	# İki ekseni de dikkate alan orantılama
 	var scale_x = usable_width / needed_width
 	var scale_y = usable_height / needed_height
 	var current_scale = clamp(min(scale_x, scale_y), MIN_SCALE, MAX_SCALE)
 	
+	# Piksel değerleri
+	var scaled_slot_size = base_size * current_scale
+	var scaled_col_gap = int(col_gap * current_scale)
+	var scaled_row_gap = int(row_gap * current_scale)
+	var scaled_top_corridor = base_top_flight_corridor * current_scale
+	
+	# Ekranda kaplanacak gerçek yükseklik
+	var total_grid_height = (num_rows * scaled_slot_size.y) + ((num_rows - 1) * scaled_row_gap)
+	
+	# Kalan serbest boşluğu tam eşit dağıtarak merkezleme
+	var remaining_space = max(0.0, usable_height - total_grid_height - scaled_top_corridor)
+	var start_y = TOP_MARGIN + scaled_top_corridor + (remaining_space / 2.0)
+	
 	return {
 		"max_columns": max_columns,
 		"scale": current_scale,
-		"slot_size": base_size * current_scale,
-		"horizontal_spacing": int(col_gap * current_scale),
-		"vertical_row_gap": int(row_gap * current_scale)
+		"slot_size": scaled_slot_size,
+		"horizontal_spacing": scaled_col_gap,
+		"vertical_row_gap": scaled_row_gap,
+		"start_y": start_y
 	}
-func setup_vbox_layout():
-	tubes_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	tubes_vbox.offset_top = TOP_MARGIN
-	tubes_vbox.offset_bottom = -BOTTOM_MARGIN
-	tubes_vbox.offset_left = 0.0
-	tubes_vbox.offset_right = 0.0
-	tubes_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+
+func check_all_tubes() -> bool:
+	if not balls_in_transit.is_empty():
+		return false
+	for tube in current_tubes:
+		if not (tube is Tube):
+			continue
+		var stack = tube.ball_stack
+		if stack.is_empty():
+			continue
+		if stack.size() < tube.MAX_CAPACITY:
+			return false
+		var first_color = stack[0].ball_color_name
+		for ball in stack:
+			if ball.ball_color_name != first_color:
+				return false
+	return true
+
+func level_up():
+	current_level += 1
+	build_level()
+
+func restart_level():
+	if not balls_in_transit.is_empty():
+		return
+	if is_instance_valid(level_holder):
+		level_holder.queue_free()
+		level_holder = null
+	build_level()
+
+func undo_move():
+	if move_history.is_empty():
+		return
+	if selected_tube != null:
+		var hovered_ball = selected_tube.ball_stack.back()
+		hovered_ball.global_position.y += HOVER_HEIGHT
+		selected_tube = null
+	if not balls_in_transit.is_empty():
+		return
+	
+	var last_move = move_history.pop_back()
+	var original_tube = last_move["from_tube"]
+	var current_tube = last_move["to_tube"]
+	var ball = last_move["ball"]
+	
+	current_tube.ball_stack.pop_back()
+	if current_tube.has_method("reset_completion"):
+		current_tube.reset_completion()
+	var target_pos = original_tube.get_next_available_position()
+	ball.global_position = target_pos
+	ball.rotation = 0.0
+	original_tube.ball_stack.append(ball)
+
+func play_victory_transition():
+	if not is_instance_valid(victory_layer) or not is_instance_valid(victory_text):
+		level_up()
+		return
+	
+	victory_text.text = PRAISE_TEXTS.pick_random()
+	victory_layer.visible = true
+	victory_text.pivot_offset = victory_text.size / 2.0
+	victory_text.scale = Vector2.ZERO
+	victory_text.modulate.a = 0.0
+	$NextLevel.play()
+	
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(victory_text, "modulate:a", 1.0, 0.2)
+	tween.tween_property(victory_text, "scale", Vector2(1.15, 1.15), 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(victory_text, "scale", Vector2(1.0, 1.0), 0.1)
+	tween.tween_interval(0.4)
+	tween.chain().set_parallel(true)
+	tween.tween_property(victory_text, "modulate:a", 0.0, 0.25)
+	tween.tween_property(victory_text, "scale", Vector2(1.3, 1.3), 0.25)
+	tween.chain().tween_callback(func():
+		victory_layer.visible = false
+		level_up()
+)
