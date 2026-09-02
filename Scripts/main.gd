@@ -13,13 +13,13 @@ const ROW_SPLIT_Y: float = 960.0
 const TRANSIT_MARGIN: float = 340.0
 const TOP_MARGIN: float = 150.0 # üst boşluk
 const BOTTOM_MARGIN: float = 80.0 # alt boşluk 
-const SIDE_MARGIN: float = 20.0
+const SIDE_MARGIN: float = 50.0
 const MAX_COLUMNS_CAP: int = 6 # bir satırda olabilecek en fazla tüp 
 const COL_GAP_RATIO: float = -0.1 # tüpler arası yatay boşluk tüp genişliğinin oranı
 const ROW_GAP_RATIO: float = 0.1 # satırlar arası dikey boşluk 
 const SIDE_LANE_RATIO: float = 0.6 # her kenarda tüp genişliği kadar araba geçiş şeridi
 const MIN_SCALE: float = 0.5
-const MAX_SCALE: float = 1.4
+const MAX_SCALE: float = 1.3
 
 const CAR_COLORS = {
 	"Red":preload("res://Assets/cars/Red.png"),
@@ -33,7 +33,7 @@ const CAR_COLORS = {
 	"Turquoise": preload("res://Assets/cars/Turquoise.png")
 }
 
-var current_level : int = 1
+var current_level : int = 10
 var selected_tube = null
 var balls_in_transit: Array = []
 var move_history: Array = []	
