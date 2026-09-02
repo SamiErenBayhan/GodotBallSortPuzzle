@@ -22,6 +22,12 @@ script = ExtResource("3_8gbba")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1156831808]
 
+[node name="TubesVBox" type="VBoxContainer" parent="CanvasLayer" unique_id=1430370067]
+offset_top = 264.0
+offset_right = 1080.0
+offset_bottom = 1728.0
+alignment = 1
+
 [node name="RestartButton" type="TextureButton" parent="CanvasLayer" unique_id=1341695419]
 texture_filter = 1
 anchors_preset = 1
@@ -145,6 +151,7 @@ volume_db = -20.0
 pitch_scale = 0.6
 
 [node name="VictoryLayer" type="CanvasLayer" parent="." unique_id=507210060]
+visible = false
 
 [node name="ColorRect" type="ColorRect" parent="VictoryLayer" unique_id=498560013]
 offset_right = 1080.0
@@ -213,11 +220,6 @@ text = "Level
 "
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="TubesVBox" type="VBoxContainer" parent="." unique_id=1430370067]
-offset_right = 1080.0
-offset_bottom = 1920.0
-alignment = 1
 
 [connection signal="pressed" from="CanvasLayer/RestartButton" to="." method="restart_level"]
 [connection signal="pressed" from="CanvasLayer/UndoButton" to="." method="undo_move"]

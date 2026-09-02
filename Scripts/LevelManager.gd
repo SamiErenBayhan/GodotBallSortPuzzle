@@ -161,7 +161,7 @@ func generate_full_game_package(easy_count: int, medium_count: int, hard_count: 
 	
 	# Kolay 
 	for i in range(easy_count):
-		var layout = generate_level("Easy") # senin daha önce yazdığın karıştırma fonksiyonu
+		var layout = generate_level("Easy") 
 		save_level_to_json(layout)
 		
 	# Orta
